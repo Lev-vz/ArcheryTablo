@@ -1,0 +1,1 @@
+{"control":1,"setTime":120,"setIndex":1,"setSeriesType":1,"curTime":111,"prevTime":0,"qBeep":3,"curIndex":0,"curSerie":3,"curType":"РАЗМ.","shootingTime":111,"controlPrev":2,"showIndex":"A,B","showType":" зачёт.","color":"red"}

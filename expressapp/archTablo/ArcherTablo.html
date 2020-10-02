@@ -1,0 +1,92 @@
+<html>
+	<head>
+		<title>Лучное табло</title>
+		<meta charset="UTF-8">
+		<!--link rel="stylesheet" href="styles.css" type="text/css"/-->
+		<style>
+			span.info {
+				font-family: Verdana, Arial, Helvetica, sans-serif; 
+				font-size : 16pt;
+				color: #666666;
+				padding:0px;
+			}
+			span.shutData {
+				font-family: Verdana, Arial Black, Helvetica, sans-serif; 
+				font-size : 180pt;
+				font-weight:bolder;
+				color: #00FFFF;
+				padding:0px;
+			}
+			div.info {
+				font-family: Verdana, Arial Black, Helvetica, sans-serif; 
+				font-weight:bolder; /* Размер шрифта в пунктах */ 
+				font-size : 36pt;
+			}
+			input {
+				font-family: Verdana, Arial Black, Helvetica, sans-serif; 
+				font-weight:bolder; /* Размер шрифта в пунктах */ 
+				font-size : 48pt;
+				/*border:solid 2 black;*/
+				border-radius: 30px;
+			}
+		</style>
+	</head>
+	<body>
+		<div id = "bigBox" style="background-color:#00AA00; font-family: Arial Black; text-align: center;">
+			<div style='position:absolute; top:0px;'>
+				<span class="info">Подходы:&nbsp;</span>
+				<span class="info" id = "indexes">A,B</span>
+				<span class="info" >Серия:&nbsp;</span>
+				<span class="info" id = "serie" >1</span>
+				<span class="info" id = "type" >()</span>
+				
+			</div>
+			<div>
+				<span class="shutData" id = "curIndex" style="color:#4444FF;">A,B</span>
+				<span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+				<span class="shutData" id = "curSerie" >1</span>
+				<span class="shutData" id = "curType" > П </span>
+				
+			</div>
+			<div id="shutTime" style="position:absolute; top:100px; color:#FFFFFF; font-family: Arial Black; text-align: center;"></div>
+		</div>
+		<div id="allDate"></div>
+		<!--audio id="Alarm"   src="alarm.wav"></audio-->
+		<script type="text/javascript" src="ArcherTabloFunction.js"></script> 
+	<script type="text/javascript">
+		function registration(message, socket){
+			if(message=='Hi, client!'){
+				socket.send('Tablo');
+				return true;
+			}
+			return false;
+		}
+		
+		let w = +document.documentElement.clientWidth;
+		let h = +document.documentElement.clientHeight;
+		let bigBox = document.getElementById("bigBox");
+		bigBox.style.height = (h+40) + 'px';
+		
+		let fs = Math.floor(h*0.7);
+		let shutTimeBox = document.getElementById("shutTime");
+		shutTimeBox.style.fontSize = fs + 'px';
+		shutTimeBox.style.width = w + 'px';
+		
+		setInterval(updateDate, 100);
+		
+		function updateDate(){
+			if(!('allDate' in answer)) getAllDate();//1 - пуск, 2 - стоп, 3 - сброс
+			else if(answer['allDate']){
+				let allDate = JSON.parse(answer['allDate'])
+				let tmp = "";
+				for(key in allDate) tmp += '<div>['+key+']='+allDate[key]+'</div>'
+				document.getElementById("allDate").innerHTML = tmp;
+				delete answer['allDate'];
+			}
+		}
+		
+	</script>
+	
+	</body>
+
+</html>

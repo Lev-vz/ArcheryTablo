@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>управление стрельбой</title>
+	<meta charset="utf-8">
+	<style>
+	input {
+		font-family: Verdana, Arial Black, Helvetica, sans-serif; 
+		font-weight:bolder; /* Размер шрифта в пунктах */ 
+		font-size : 60pt;
+		width : 400px;
+		height : 300px;
+		/*border:solid 2 black;*/
+		border-radius: 30px;
+	}
+	div.info {
+		font-family: Verdana, Arial, Helvetica, sans-serif; 
+		font-size : 24pt;
+		color: #555555;
+	}
+    </style>
+
+</head>
+<body style='background-color:#AAAAAA'>
+	<a style='font-size : 36pt;' href='SetArcherTablo.html'>НАСТРОЙКА</a>
+	</br></br>
+	<!--div style="padding:2px;background-color:#00AA00" id='size'>size</div-->
+	<div>
+		<input id="1" style='background-color:#88FF88' type="button" value="СТАРТ"  onclick="setDate('control', this.id)"></input>
+		<input id="2" style='background-color:#FF4444' type="button" value="СТОП"   onclick="setDate('control', this.id)"></input>
+		<input id="3" style='background-color:#DDDD00' type="button" value="СБРОС"  onclick="setDate('control', this.id)"></input>
+		<input id="4" style='background-color:#888888' type="button" value="НАСТР." onclick="setDate('control', this.id)"></input>
+		<div class='info' id="control">info</div>
+	</div>
+	<script type="text/javascript" src="ArcherTabloFunction.js"></script> 
+</body>
+</html>

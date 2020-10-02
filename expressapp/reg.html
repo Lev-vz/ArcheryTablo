@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Регистрация</title>
+    <meta charset="utf-8" />
+</head>
+<body>
+    <h1>Введите данные</h1>
+	<div id="out"></div>
+	<script type="text/javascript">
+		let variable = '';
+		let value = 0;
+		let ret = null;
+		let funcSend = function() { //когда придёт ответ от PHP, тогда и обработаем его
+			new_rcv.contentWindow.document.getElementsByName('value')[0].value = value 
+			new_rcv.contentWindow.document.getElementsByName('variable')[0].value = variable; 
+			new_rcv.onload = funcRec;
+			new_rcv.contentWindow.document.getElementById('form').submit();
+		}	
+		let funcRec = function() { //когда придёт ответ от PHP, тогда и обработаем его
+			ret = new_rcv.contentWindow.document.body.innerHTML;
+			new_rcv.remove();
+			document.getElementById('out').innerHTML = ret;
+		}	
+		let new_rcv     = document.createElement("iframe");
+		new_rcv.src 	= "setDate.html";
+		new_rcv.onload = funcSend;
+		new_rcv.style.display = "none";
+		variable = 'regim';
+		//value = 'readDate';
+		value = 1000;
+		document.body.append(new_rcv);
+	</script>
+</body>
+</html>
