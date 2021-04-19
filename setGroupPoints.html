@@ -1,0 +1,55 @@
+<!DOCTYPE html/>
+<html>
+<head>
+	<title>Запись результатов</title>
+	<meta charset="utf-8">
+	<style>
+	input {
+		font-family: Verdana, Arial Black, Helvetica, sans-serif; 
+		font-weight:bolder; 
+		font-size : 30pt;/* Размер шрифта в пунктах */ 
+		width : 100px;
+		height : 60px;
+		/*border:solid 2 black;*/
+		border-radius: 10px;
+	}
+	div.info {
+		font-family: Verdana, Arial, Helvetica, sans-serif; 
+		font-size : 24pt;
+		color: #555555;
+	}
+    </style>
+
+</head>
+<body style='background-color:#AAAAAA'>
+	<div  style='font-size : 36pt;'>
+		<a href='Resalts.html'>РЕЗУЛЬТАТЫ</a>
+		<span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+		<span class='info' id="control">info</span>
+	</div>
+	</br>
+	<div style="padding:2px;background-color:#00AA00" id='12A1'>&#65666;&#65664;&#65629;&#65676;&#65677;&#65678;&#65679;</div>
+	
+
+	<div style="width : 600px; height : 400px;padding:2px;background-color:#00AA00" id='out'>
+		
+	</div>
+	<div>
+		<input id="11" style='background-color:#FFFF00' type="button" value="11"  onclick="setLocalData(this.id)"></input>
+		<input id="10" style='background-color:#FFDD00' type="button" value="10"  onclick="setLocalData(this.id)"></input>
+		<input id="8"  style='background-color:#FF0000' type="button" value="8"   onclick="setLocalData(this.id)"></input>
+		<input id="5"  style='background-color:#00AAFF' type="button" value="5"   onclick="setLocalData(this.id)"></input>
+		<input id="0"  style='background-color:#FFFFFF' type="button" value="M"   onclick="setLocalData(this.id)"></input>
+	</div>
+	<script>
+	function setLocalData(points){
+		setData("12","A", 22, 1, points);
+		/*let table = document.getElementById('table')
+		let ttt1 = table.contentDocument;
+		let data = document.getElementById('table').contentWindow.document.body.innerHTML;
+		let jsonStringfyData = JSON.stringify(data);*/
+	}
+	</script> 
+	<script type="text/javascript" src="saveResFunction.js"></script> 
+</body>
+</html>
