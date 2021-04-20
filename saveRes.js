@@ -1,6 +1,8 @@
 const express = require("express");// подключение express
 const bodyParser = require("body-parser");
 const app = express();
+const fs = require("fs");
+
   
 const urlencodedParser = bodyParser.urlencoded({extended: false});// создаем парсер для данных application/x-www-form-urlencoded
 
@@ -38,20 +40,32 @@ app.get("/*", urlencodedParser, function (request, response) {
 
 app.post("/setData", urlencodedParser, function (request, response) {
     if(!request.body) return response.sendStatus(400);
-	console.log(" " +request.body.group + " " + request.body.index + " " + request.body.target+" "+request.body.arrow+" "+ request.body.points);
-	//archers[" " +request.body.group + " " + request.body.index + " "].arr[request.body.target][request.body.arrow] = request.body.points;
-	let req = "";
+	//console.log(" " +request.body.group + " " + request.body.index + " " + request.body.target+" "+request.body.arrow+" "+ request.body.points);
 	let t = parseInt(request.body.target) - 1;
-	console.log(" No " + t);
+	let a = parseInt(request.body.arrow) - 1;
+	let p = parseInt(request.body.points);
+	archers[" " +request.body.group + " " + request.body.index + " "].arr[t][a] = p;
+	let req = "";
+	//console.log(" No " + t);
+	let group = {};
 	for(let key in archers){
 		if(key.indexOf(" " +request.body.group + " ") >=0){
 			if(req=="") req = "<table>";
 			req += "<tr><td>" + archers[key].name + "</td><td>" + archers[key].arr[t][0] + "</td><td>" + archers[key].arr[t][1] + "</td></tr>"
+			group[key] = archers[key];
 		}
 	}
 	if(req!="") req += "</table>";
-    console.log(req);	 		//--------------------------- CheckOut ------------------------------------
+    //console.log(req);	 		//--------------------------- CheckOut ------------------------------------
 	response.send(req);
+	
+	let jsonStringfyData = JSON.stringify(group);
+	try{															//записываем новые данные в файл на случай краха
+		fs.writeFileSync('group' + request.body.group + '.txt', jsonStringfyData, 'utf8');
+		//console.log(jsonStringfyData);
+	}catch(err){
+		console.log('Ошибка записи в файл',err);
+	}
 });
 
 app.post("/getDate", urlencodedParser, function (request, response) {
@@ -91,5 +105,4 @@ let archers = { " 1 A ":{name:" Евстратов Станислав Юрьев
 " 7 B ":{name:" Смирнова Елена Анатольевна ", class : " 3Д длинный лук (лонгбоу) женщины (21 год и старше) ", arr:[ [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], ]},
 " 8 A ":{name:" Дьякова Ирина Сергеевна  ", class : " Олимпик женщины (21 год и старше) ", arr:[ [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], ]},
 " 8 B ":{name:" Савенкова  Александра Андреевна  ", class : " 3Д БЛ (Анлимитед) женщины (21 год и старше) ", arr:[ [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], ]},
-}                                   
-console.log(archers[" 1 C "].name)
+}
