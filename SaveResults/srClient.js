@@ -10,7 +10,7 @@ setWebSocketClient();
 
 
 function setWebSocketClient(){
-	if(timeoutId) clearTimeout(timeoutId);
+	//if(timeoutId) clearTimeout(timeoutId);
 	socket = new WebSocket('ws://'+ip+':3001');// создать подключение
 
 	socket.onmessage = function(event) {// обработчик входящих сообщений
@@ -28,16 +28,17 @@ function setWebSocketClient(){
 
 	socket.onclose = function(event) {
 		//alert('No connect with WebSocketServer');
-		timeoutId = setTimeout(setWebSocketClient, 10000); //Если было отключение сервера, клиент раз в 10 секунд пытается подключиться снова
+		//timeoutId = setTimeout(setWebSocketClient, 10000); //Если было отключение сервера, клиент раз в 10 секунд пытается подключиться снова
 	};
 
 	//socket.onerror = function(error) {alert(`[error] ${error.message}`);};
 }
 
-function setData(variable, value) {// показать сообщение в div#subscribe
+function wsRequest(func, data) {// показать сообщение в div#subscribe
 	if(!socket) return;
 	let obj = {};
-	obj[variable] = +value;
+	obj['func'] = func;
+	obj['data'] = data;
 	socket.send(JSON.stringify(obj));
 }
 /*
@@ -69,10 +70,9 @@ function updateData(msg){
 	return true;
 }
 
-function setData(group, index, target, arrow, points){
 	/*
+function setData(group, index, target, arrow, points){
 	alert("groupIndex="+groupIndex+", target="+target+", arrayNumb="+arrow+", points="+points);
-	*/
 	let ret = null;
 	let funcSend = function() { //когда iframe загрузится - тогда и выполним запрос
 		new_rcv.contentWindow.document.getElementsByName('group')[0].value = group;
@@ -112,4 +112,5 @@ function getGroup(varName){
 	new_rcv.style.display = "none";
 	document.body.append(new_rcv);
 }
+	*/
 		
