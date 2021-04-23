@@ -2,77 +2,62 @@ module.exports.init = function(sootingData){
 	//console.log(sootingData)
 }
 
-function getArcherData(archer, target, arrow, points, archers){ //возвращает отображаемые индексы по номеру индекса
-	let  	
-	return 'X,X';
-}
-//sootingData.control == 0 - ожидание, 1 - работа, 2 - пауза, 3 - переход к следующему индексу
-module.exports.processing = function(sootingData){ // основная функция - цикл функции должен быть ровно 1 секунда!
-	let control = sootingData.control;
-	if(control == 1){ 												//если режим - работа
-		if(sootingData.controlPrev == 3 || sootingData.controlPrev == 0){// если на предыдущем цикле был режим перехода к следующему индексу или режим ожидания
-			sootingData.shootingTime = sootingData.setTime;					//устанавливаем оставшееся время стрельбы
-			sootingData.prevTime = 10;										//устанавливаем время подготовки равным настройке максимального времени стрельбы
-			sootingData.qBeep = 2;											//устанавливаем количество гудков для команды "выйти на рубеж и готовиться" (2 гудка)
-			sootingData.color = 'red';										//устанавливаем цвет светофора красным - "стрельба запрещена"
-		}
-		else if(sootingData.controlPrev == 2 && sootingData.prevTime == 0){// если на предыдущем цикле был режим "пауза" и время подготовки истекло
-			sootingData.qBeep = 1;												//устанавливаем количество гудков для команды "огонь!" (1 гудок)
-			sootingData.color = 'green';										//устанавливаем цвет светофора зелёным - "стрельба разрешена"
-		}
-		else if(sootingData.prevTime > 0) sootingData.prevTime--;		//если на предыдущем цикле не было ни паузы, ни ожидания ни возврата и время подготоки ещё не истекло - уменьшаем время подготовки на 1
-		else if(sootingData.shootingTime  > 0){							//если верно всё предыдущее и время подготовки истекло
-			if(sootingData.shootingTime == sootingData.setTime) sootingData.qBeep = 1; //если время стельбы ещё равно максимальному, т.е. это первая секнда стрельбы - устанавливаем количество гудков =1 - начать стрельбу
-			sootingData.shootingTime--;													//уменьшаем время стрельбы на 1
-			if(sootingData.shootingTime > 30)	sootingData.color = 'green';			//если до кнца стрельбы больше 30 секунд - держим зелёный свет - стрельба разрешена
-			else								sootingData.color = 'yellow';			//если до кнца стрельбы меньше или = 30 секунд - держим жёлтый свет - стрельба разрешена, но скоро закончится
-		}
-		else{				//если режим - работа и время стрельбы истекло
-			sootingData.color = 'red';							//светофор - красный (стрельба запрещена)
-			sootingData.curIndex++;								//увеличиваем индекс, что бы начали готовится следующий подход лучников
-			//console.log('befor---------------------');//---------------------------------------------checkOut-----------------------------------------------
-			//console.log(JSON.stringify(sootingData));//---------------------------------------------checkOut-----------------------------------------------
-			sootingData.shootingTime = sootingData.setTime;		//возвращаем время стрельбы в масимальное значение
-			sootingData.prevTime = 10;							//возвращаем время подготовки на 10 сек
-			if(sootingData.curIndex > sootingData.setIndex){	//если индекс больше макимально допустимого
-				sootingData.control = 0;							//переводим режим на "ожидание"
-				sootingData.curIndex = 0;							//возвращаем индекс в 0
-				sootingData.qBeep = 3;								//даём 3 гудка - (стрельба запрещена)
-				sootingData.curSerie++;								//увеличиваем номер серии
-			}else{												//если индекс допустимый - значит будет стрелять ещё один подход в этой же серии
-				sootingData.qBeep = 2;								//даём 2 гудка - команда "выйти на рубеж и готовиться"
-			}	
-			sootingData.showIndex = getIndex(sootingData.curIndex);//передаём в систему отображения индексы, которые надо показать стрелкам
-		}
-	}else if(control == 2){									//если режим - пауза
-		if(sootingData.controlPrev == 1 && sootingData.prevTime == 0){ //если попали в паузу из режима "работа" и время подготовки истекло - значит была разрешена стрельба.
-			sootingData.color = 'red';										//поэтому переводим светофор в красный
-			sootingData.qBeep = 3;											//И даём 3 гудка - запрет стрельбы
-		}
-	}else if(control == 3){									//если режим - переход к следующему индексу
-		sootingData.color = 'red';									//светофор - красный
-		if(sootingData.controlPrev != 3){							//если это первый цикл режима "переход" 
-			sootingData.prevTime = 10;									//устанавливаем начальные установки стрельбы
-			sootingData.curIndex++;										//увеличиваем индекс
-			if(sootingData.curIndex > sootingData.setIndex){			//если индекс больше макимально допустимого
-				if(sootingData.prevTime == 0) sootingData.qBeep = 3;		//даём 3 гудка - (стрельба запрещена)
-				sootingData.control = 0;									//переводим режим на "ожидание"
-				sootingData.curIndex = 0;									//возвращаем индекс в 0
-				sootingData.curSerie++;										//увеличиваем номер серии
+module.exports.checkPass = function(arg, ip, groups, fs){ //проверка допуска запрса
+		console.log('arg = ' + arg);//---------------------------------------------checkOut-----------------------------------------------
+		console.log('ip = ' + ip);//---------------------------------------------checkOut-----------------------------------------------
+		console.log('groups["1"].pass = ' + groups["1"].pass);//---------------------------------------------checkOut-----------------------------------------------
+
+	if(arg.toLowerCase().indexOf('/groupcontrol') == 0){
+		if(arg.length == 13 || arg.toLowerCase().substring(13) == '.html'){
+			for(let key in groups){
+				if(groups[key].clientId == ip) return '/groupControl.html';
 			}
-			sootingData.showIndex = getIndex(sootingData.curIndex);			//передаём в систему отображения индексы, которые надо показать стрелкам
-		}else sootingData.control = 1;								//если это не первый цикл режима "переход" и не произошло перехода в режим "ожидание" - автоматически переходим в режим "работа"
-	}else{													//если режим - "ожидание"
-		sootingData.shootingTime = sootingData.setTime;			//принимаем настройки от интерфейса управления
-		sootingData.prevTime = 10;
-		switch(sootingData.setSeriesType){
-			case 0: sootingData.showType = ' разм.'; break;
-			case 1: sootingData.showType = ' зачёт.'; break;
+			return '/wrongPass.html';
+		}else{
+			let st = arg.indexOf('?');
+			if(st < 0) return '/wrongPass.html';
+			
+			let end = arg.indexOf('?',st+1)
+			if(end < 0) return '/wrongPass.html';
+			
+			let group = arg.substring(st + 1,end);
+			let pass = arg.substring(end + 1);
+			
+			if(groups[group].pass == pass){
+				groups[group].clientId = ip;
+				module.exports.saveGroupInfo(groups, group, ip, fs);
+				return '/groupControl.html';
+			}
+			
+			return '/wrongPass.html';
 		}
 	}
-	sootingData.controlPrev = control;												//запоминаем режим для следующего цикла
-	if(sootingData.prevTime == 0) 	sootingData.curTime = sootingData.shootingTime;	//выбираем, какое время показывать стрелкам - стрельбы
-	else 							sootingData.curTime = sootingData.prevTime;		//или подготовки
+	else if(!(arg.includes('.html') || arg.includes('.htm') || arg.includes('.js') || arg.includes('.ico'))) return arg + ".html";
+	
+	return arg;
+}
 
-	//console.log('time='+sootingData.curTime);
+module.exports.saveGroupInfo = function(groupInfo, key, ip, fs){ //возвращает отображаемые индексы по номеру индекса
+	if(key in groupInfo){
+		for(let k in groupInfo){
+			if(groupInfo[k]["clientId"] == ip) groupInfo[k]["clientId"] = "";
+		}
+		groupInfo[key]["clientId"] = ip;
+		try{															//записываем новые данные в файл на случай краха
+			fs.writeFileSync('groupInfo.txt', JSON.stringify(groupInfo), 'utf8');
+		}catch(err){
+			console.log('Ошибка записи в файл',err);
+		}
+	}
+	
+	let groupForBind = {}
+	for(let key in groupInfo){
+		groupForBind[key] = groupInfo[key]["clientId"];
+	}
+	
+	try{															//записываем новые данные в файл на случай краха
+		fs.writeFileSync('groupForBind.js', 'let groups = '+ JSON.stringify(groupForBind), 'utf8');
+	}catch(err){
+		console.log('Ошибка записи в файл',err);
+	}
 }

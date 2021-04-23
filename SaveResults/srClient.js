@@ -8,13 +8,14 @@ let timeoutId = null;
 
 setWebSocketClient();
 
-
 function setWebSocketClient(){
 	//if(timeoutId) clearTimeout(timeoutId);
 	socket = new WebSocket('ws://'+ip+':3001');// создать подключение
 
 	socket.onmessage = function(event) {// обработчик входящих сообщений
-		if(registration(event.data, socket)) return;
+		//if(
+		registration(event.data, socket)
+		//) return;
 		//if(updateData(event.data)) return;
 		
 		try{
@@ -41,13 +42,7 @@ function wsRequest(func, data) {// показать сообщение в div#su
 	obj['data'] = data;
 	socket.send(JSON.stringify(obj));
 }
-/*
-function showMessage(message) {// показать сообщение в div#subscribe
-  let messageElem = document.createElement('div');
-  messageElem.appendChild(document.createTextNode(message));
-  document.getElementById('subscribe').appendChild(messageElem);
-}
-*/
+
 function registration(message, socket){
 	if(message=='Hi, client!'){
 		socket.send('Result saver');

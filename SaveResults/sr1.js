@@ -19,7 +19,7 @@ const clients = {};// подключённые клиенты
 //let data = {};
 let groupInfo = {};//Информация о группах
 
-try{//Пытаемся прочитать файл с информацией от предыдущего запуска сервера,
+try{//Пытаемся прочитать файл с информацией о группах,
 	groupInfo = JSON.parse(fs.readFileSync('groupInfo.txt', 'utf8'));
 }catch(err){
 	let group = "";
@@ -36,7 +36,6 @@ try{//Пытаемся прочитать файл с информацией о�
 			groupInfo[group]["pass"] = pass.substring(2,6);
 		}
 	}
-	groupInfo['1'].currTarget = 11;
 	try{															//записываем новые данные в файл на случай краха
 		fs.writeFileSync('groupInfo.txt', JSON.stringify(groupInfo), 'utf8');
 		//console.log(groupInfo);
@@ -45,22 +44,8 @@ try{//Пытаемся прочитать файл с информацией о�
 	}
 };
 
+srn.saveGroupInfo(groupInfo, "", "", fs);
 
-//let copyData = {};
-/*
-atn.init(data);
-//console.log(data)
-
-function updateData(){
-	atn.processing(data);
-	let jsonStringfyData = JSON.stringify(data);
-	if(jsonStringfyData != copyData){
-		copyData = jsonStringfyData;
-		atn.updateTablo(jsonStringfyData, tablos);
-		//console.log('time='+data.curTime);
-	}
-}
-*/
 //----------------------- Запуск обычного HTTP Server ------------------------------------
 const exp = express();
 
@@ -72,31 +57,8 @@ exp.get("/favicon.ico", function(request, response) {
 });
 
 exp.get("/*", function (request, response) {
-	let arg = request.url;
-	console.log('request.connection.remoteAddress = ' + request.connection.remoteAddress);//---------------------------------------------checkOut-----------------------------------------------
-	if(arg.toLowerCase().indexOf('/groupcontrol') == 0){
-		if(arg.length == 13 || arg.toLowerCase().substring(13) == '.html'){
-			response.sendFile(__dirname + '/groupControl.html');
-			return;
-		}else{
-			let st = arg.indexOf('-');
-			if(st < 0){
-				response.sendFile(__dirname + '/err.html');
-				return;
-			}
-			let end = arg.indexOf('-',st+1)
-			if(end < 0){
-				response.sendFile(__dirname + '/err.html');
-				return;
-			}
-			let group = arg.substring(st + 1,end);
-			let pass = arg.substring(end + 1);
-			console.log('group = ' + group + ', pass = ' + pass );//---------------------------------------------checkOut-----------------------------------------------
-			response.sendFile(__dirname + '/groupControl.html');
-			return;
-		}
-	}
-	else if(!(arg.includes('.html') || arg.includes('.htm') || arg.includes('.js') || arg.includes('.ico'))) arg += ".html";
+	let arg = srn.checkPass(request.url, request.connection.remoteAddress, groupInfo, fs);
+	console.log('arg = ' + arg);//---------------------------------------------checkOut-----------------------------------------------
     response.sendFile(__dirname + arg);
 });
 
@@ -111,38 +73,43 @@ webSocketServer.on('connection', function(ws) {
 	ws.send('Hi, client!');
 
 	ws.on('message', function(msg) {
+		clientIp = ws._socket.remoteAddress;
 		console.log('получено сообщение ' + msg);//---------------------------------------------checkOut-----------------------------------------------
 		//console.log("msg.indexOf('Result saver') " + msg.indexOf('Result saver'))
+		let resp = {};
 		if(msg.indexOf('Result saver')==0){//если в полученном сообщении есть слово 'Result saver'
-			clients[ws._socket.remoteAddress]= ws;			//регистрируем его как получателя информации о смене времени и режима
-			//atn.updateTablo(JSON.stringify(data), tablos); //и сразу отправляем текущее состояние
+			clients[clientIp]= ws;			//регистрируем его как получателя информации о смене времени и режима
+			for(let k in groupInfo){
+				if(groupInfo[k]["clientId"] == clientIp){
+					resp['group'] = k;
+					resp['target'] = groupInfo[k]["currTarget"];
+					if(groupInfo[k]["ready"]) resp['ready'] = 'ГРУППА ГОТОВА';
+					else resp['ready'] = 'ГРУППА НЕ ГОТОВА';
+					resp['targetType'] = targets[groupInfo[k]["currTarget"]];
+					break;
+				}
+			}
+			ws.send(JSON.stringify(resp));
 		}else{
 			try{
 				let obj = JSON.parse(msg);
-				let resp = {};
 				switch(obj.func){
 					case 'setPoint2Cell':
 						//console.log('obj.data.archer + obj.data.arrow = ' + obj.data.archer + "" + obj.data.arrow)
 						resp[obj.data.archer + "" + obj.data.arrow] = obj.data.points;
 						break;
+					case 'sendReady':
+						let ready = true;
+						for(let k in groupInfo){
+							if(groupInfo[k]["clientId"] == clientIp) groupInfo[k]["ready"] = true;
+							ready &= groupInfo[k]["ready"];
+						}
+						if(ready) resp['ready'] = 'ВСЕ ГРУППЫ ГОТОВЫ';
+						resp['ready'] = 'ГРУППА ГОТОВА';
+						break;
 				}
 				//console.log('resp='+JSON.stringify(resp));
 				ws.send(JSON.stringify(resp));
-		/*
-				for(key in obj) //смотрим какие поля структуры прислали
-					if(data.control == 0 || key =='control') data[key] = obj[key]; //если текущий режим - ожидание (0), записываем любые поля, иначе записываем только команды
-				let jsonStringfyData = JSON.stringify(data);					//записываем текущую структу в строку
-				if(jsonStringfyData != copyData){								//если она отличается от контрольных данных - значит было изменение
-															//отправляем абоненту, от которого прищёл запрос на изменение обновлённые данные
-					updateData();													//обновляем контрольные данные
-					try{															//записываем новые данные в файл на случай краха
-						fs.writeFileSync('data.txt', jsonStringfyData, 'utf8');
-						console.log(jsonStringfyData);
-					}catch(err){
-						console.log('Ошибка записи в файл',err);
-					}
-				}
-		*/
 			}catch(err){
 				console.log(err)
 			};
