@@ -55,15 +55,16 @@
 	</br>
 	<div style="padding:2px;"><b>
 		<span class='info'>Группа</span>
-		<span class='info' style="background-color:#FFFFFF" id='group'>12</span>
+		<span class='info' style="background-color:#FFFFFF" id='group'>0</span>
 		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 		<span class='info' >Мишень</span>
-		<span class='info' style="background-color:#FFFFFF" id='target' padding=10>22</span>
+		<span class='info' style="background-color:#FFFFFF" id='target' padding=10>0</span>
 		<span id='targetType' hidden>Field</span>
 		</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-		<input class='points' style='background-color:#88FF88;' type="button" value="&nbsp;&#10155;&nbsp;"  onclick="setLocalData(this.id)"></input>
+		<input class='points' style='background-color:#88FF88;' type="button" value="&nbsp;&#10155;&nbsp;"  onclick="nextTarget()"></input>
 		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-		<input class='points' style='background-color:#FF8888; font-size : 30pt;width : 90px; height : 60px;' type="button" value="&nbsp;&#8617;&nbsp;"  onclick="setLocalData(this.id)"></input>
+		<input class='points' style='background-color:#FF8888; font-size:30pt; width:90px; height:60px;' 
+				type="button" value="&nbsp;&#8617;&nbsp;"  onclick="prevTarget()"></input>
 	</div>
 	</br>
 	<div class='info' style="background-color:#FF0000" id='ready' padding=5 onclick='sendReady()'>ГРУППА НЕ ГОТОВА</div>
@@ -75,25 +76,25 @@
 			<td style='font-size : 20pt;' width=85>Сумма</td>
 			<td style='font-size : 20pt;' width=105 >Нараст. итог</td>
 		<tr>
-			<td id="name1" style="text-align: left"> Комаров Андрей </td>
+			<td id="name1" style="text-align: left"></td>
 			<td id="11" onclick="setPoints(this.id)"></td>
 			<td id="12" onclick="setPoints(this.id)"></td>
 			<td id="13" onclick="setPoints(this.id)"></td>
-			<td id="summ1">22</td><td id="integ1"></td>
+			<td id="summ1"></td><td id="integ1"></td>
 		</tr>
 		<tr>
-			<td id="name2" style="text-align: left"> Базарный Аркадий </td>
+			<td id="name2" style="text-align: left"></td>
 			<td id="21" onclick="setPoints(this.id)"></td>
 			<td id="22" onclick="setPoints(this.id)"></td>
 			<td id="23" onclick="setPoints(this.id)"></td>
-			<td id="summ2">22</td><td id="integ2"></td>
+			<td id="summ2"></td><td id="integ2"></td>
 		</tr>
 		<tr>
-			<td id="name3" style="text-align: left"> Семенова Ольга </td>
+			<td id="name3" style="text-align: left"></td>
 			<td id="31" onclick="setPoints(this.id)"></td>
 			<td id="32" onclick="setPoints(this.id)"></td>
 			<td id="33" onclick="setPoints(this.id)"></td>
-			<td id="summ3">22</td><td id="integ3"></td>
+			<td id="summ3"></td><td id="integ3"></td>
 		</tr>
 		<tr>
 			<td id="name4" style="text-align: left"></td>
@@ -108,10 +109,10 @@
 		
 	</div>
 	</br>
-	<div>
+	<div id='3dButton'>
 		<input id="11" class='points' style='background-color:#FFFF00' type="button" value="11"  onclick="setPoint2Cell(this.id)"></input>
 		&nbsp;
-		<input id="10" class='points' style='background-color:#FFDD00' type="button" value="10"  onclick="setPoint2Cell(this.id)"></input>
+		<input id="10" class='points' style='background-color:#FFBB00' type="button" value="10"  onclick="setPoint2Cell(this.id)"></input>
 		&nbsp;
 		<input id="8"  class='points' style='background-color:#FF0000' type="button" value="8"   onclick="setPoint2Cell(this.id)"></input>
 		&nbsp;
@@ -119,12 +120,27 @@
 		&nbsp;
 		<input id="0"  class='points' style='background-color:#FFFFFF' type="button" value="M"   onclick="setPoint2Cell(this.id)"></input>
 	</div>
+	<div id='FieldButton'>
+		<input id="6" class='points' style='background-color:#FFFF00' type="button" value="6"  onclick="setPoint2Cell(this.id)"></input>
+		&nbsp;
+		<input id="5" class='points' style='background-color:#FFAA00' type="button" value="5"  onclick="setPoint2Cell(this.id)"></input>
+		&nbsp;
+		<input id="4" class='points' style='background-color:#000000; color:#FFDD00;' type="button" value="4"   onclick="setPoint2Cell(this.id)"></input>
+		&nbsp;
+		<input id="3" class='points' style='background-color:#000000; color:#FFDD00;' type="button" value="3"   onclick="setPoint2Cell(this.id)"></input>
+		&nbsp;
+		<input id="2" class='points' style='background-color:#000000; color:#FFDD00;' type="button" value="2"   onclick="setPoint2Cell(this.id)"></input>
+		&nbsp;
+		<input id="1" class='points' style='background-color:#000000; color:#FFDD00;' type="button" value="1"   onclick="setPoint2Cell(this.id)"></input>
+		&nbsp;
+		<input id="0" class='points' style='background-color:#FFFFFF;' type="button" value="M"   onclick="setPoint2Cell(this.id)"></input>
+	</div>
 	<script>
 	let qArrows = 3;
-	let qArhers = 4;
+	const qArhers = 4;
 	//let target = 0;
 	let target = 0;
-	let archer = 1;
+	let row = 1;
 	let arrow = 1;
 	document.getElementById('11').style.backgroundColor = "#00ffff";
 	
@@ -133,7 +149,7 @@
 		if(targetType == '3D') qArrows = 2;
 		else qArrows = 3;
 		
-		archer = 0;
+		row = 0;
 		arrow = 0;
 		
 		for(let i = 1; i <= qArhers; i++){
@@ -141,7 +157,7 @@
 				let genId = i + "" + j;
 				if(genId == thisId){
 					document.getElementById(genId).style.backgroundColor = "#00ffff";
-					archer = i;
+					row = i;
 					arrow = j;
 				}
 				else document.getElementById(genId).style.backgroundColor = "#DDDDDD";
@@ -150,11 +166,11 @@
 	}
 	
 	function setPoint2Cell(points){
-		if(archer == 0 || arrow == 0) return;
+		if(row == 0 || arrow == 0) return;
 		let request = {};
-		request['name'] = document.getElementById('name'+archer).innerHTML;
-		request['target'] = document.getElementById('target').innerHTML;
-		request['archer'] = archer;
+		request['name'] = document.getElementById('name'+row).innerHTML;
+		request['target'] = parseInt(document.getElementById('target').innerHTML);
+		request['row'] = row;
 		request['arrow'] = arrow;
 		request['points'] = parseInt(points);
 		wsRequest('setPoint2Cell',request);
@@ -163,20 +179,41 @@
 		else qArrows = 3;
 		arrow++;
 		if(arrow > qArrows){
-			if(archer < qArhers){
+			if(row < qArhers && document.getElementById('name'+(row+1)).innerHTML != ""){
 				arrow = 1;
-				archer++;
+				row++;
 			}else{
 				arrow = 0;
-				archer = 0;
+				row = 0;
 			}
 		}
-		setPoints(archer + "" + arrow);
+		setPoints(row + "" + arrow);
 	}
 	function sendReady(){
 		if(confirm('Вы уверены, что группа готова к стрельбе?')) wsRequest('sendReady','');
 	}
+	
+	function prevTarget(){
+		if(confirm('Вы уверены, что хотите вернуться на предыдущую мишень?')){
+			let request = {};
+			request['group'] = document.getElementById('group').innerHTML;
+			wsRequest(PREV_TARGET,request);
+			row = 1;
+			arrow = 1;
+			setPoints(row + "" + arrow);
+		}
+	}
+	
+	function nextTarget(){
+		let request = {};
+		request['group'] = document.getElementById('group').innerHTML;
+		wsRequest(NEXT_TARGET,request);
+		row = 1;
+		arrow = 1;
+		setPoints(row + "" + arrow);
+	}
 	</script> 
 	<script type="text/javascript" src="srClient.js"></script> 
+	<script type="text/javascript" src="const.js"></script> 
 </body>
 </html>

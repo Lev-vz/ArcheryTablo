@@ -13,16 +13,39 @@ function setWebSocketClient(){
 	socket = new WebSocket('ws://'+ip+':3001');// создать подключение
 
 	socket.onmessage = function(event) {// обработчик входящих сообщений
-		//if(
 		registration(event.data, socket)
-		//) return;
-		//if(updateData(event.data)) return;
 		
 		try{
 			let obj = JSON.parse(event.data);
 			for(key in obj){
 				let tmp = document.getElementById(key)
-				if(tmp) tmp.innerHTML = obj[key];
+				if(tmp){
+					tmp.innerHTML = obj[key];
+					if(key == 'ready'){
+						if(obj[key] == GROUP_READY){
+							tmp.style.color = '#000000'
+							tmp.style.backgroundColor = '#DDDDDD'
+						}else if(obj[key] == ALL_READY){
+							tmp.style.color = '#000000'
+							tmp.style.backgroundColor = '#44FF44'
+						}else{
+							tmp.style.color = '#FFFF00'
+							tmp.style.backgroundColor = '#FF0000'
+						}
+					}else if(key == 'targetType'){
+						if(obj[key] == '3D'){
+							document.getElementById('FieldButton').style.display = 'none'
+							document.getElementById('3dButton').style.display = 'block'
+							document.getElementById('13').innerHTML = '';
+							document.getElementById('23').innerHTML = '';
+							document.getElementById('33').innerHTML = '';
+							document.getElementById('43').innerHTML = '';
+						}else{
+							document.getElementById('FieldButton').style.display = 'block'
+							document.getElementById('3dButton').style.display = 'none'
+						}
+					}
+				}
 			}
 		}catch(err){};
 	};
@@ -50,7 +73,7 @@ function registration(message, socket){
 	}
 	return false;
 }
-
+/*
 function updateData(msg){
 	try{
 		let allDate = JSON.parse(msg)
@@ -64,48 +87,4 @@ function updateData(msg){
 	
 	return true;
 }
-
-	/*
-function setData(group, index, target, arrow, points){
-	alert("groupIndex="+groupIndex+", target="+target+", arrayNumb="+arrow+", points="+points);
-	let ret = null;
-	let funcSend = function() { //когда iframe загрузится - тогда и выполним запрос
-		new_rcv.contentWindow.document.getElementsByName('group')[0].value = group;
-		new_rcv.contentWindow.document.getElementsByName('index')[0].value = index;
-		new_rcv.contentWindow.document.getElementsByName('target')[0].value = target; 
-		new_rcv.contentWindow.document.getElementsByName('arrow')[0].value = arrow;
-		new_rcv.contentWindow.document.getElementsByName('points')[0].value = points; 
-		new_rcv.onload = funcRec;
-		new_rcv.contentWindow.document.getElementById('form').submit();
-	}	
-	let funcRec = function() { //когда придёт ответ от PHP, тогда и обработаем его
-		ret = new_rcv.contentWindow.document.body.innerHTML;
-		new_rcv.remove();
-		document.getElementById("out").innerHTML = ret;
-	}	
-	let new_rcv     = document.createElement("iframe");
-	new_rcv.src 	= "./setData.html";
-	new_rcv.onload = funcSend;
-	new_rcv.style.display = "none";
-	document.body.append(new_rcv);
-}
-
-function getGroup(varName){
-	answer[varName] = null;
-	let funcSendGet = function() { //когда iframe загрузится - тогда и выполним запрос
-		new_rcv.contentWindow.document.getElementsByName('variable')[0].value = varName; 
-		new_rcv.onload = funcRecGet;
-		new_rcv.contentWindow.document.getElementById('form').submit();
-	}	
-	let funcRecGet = function() { //когда придёт ответ от PHP, тогда и обработаем его
-		answer[varName] = new_rcv.contentWindow.document.body.innerHTML;
-		new_rcv.remove();
-	}	
-	let new_rcv     = document.createElement("iframe");
-	new_rcv.src 	= "../getGroup.html";
-	new_rcv.onload = funcSendGet;
-	new_rcv.style.display = "none";
-	document.body.append(new_rcv);
-}
-	*/
-		
+*/
