@@ -1,0 +1,76 @@
+<!DOCTYPE html/>
+<html>
+<head>
+	<title>Tournament info</title>
+	<meta charset="utf-8">
+	<style>
+	div.item {
+		font-family: Verdana, Arial, Helvetica, sans-serif; 
+		font-weight:bolder; 
+		font-size : 60pt;/* Размер шрифта в пунктах */ 
+		width : 200px;
+		height : 120px;
+		border:solid 2px black;
+		border-radius: 10px;
+		margin : 2px;
+		float: left;
+		text-align : center;
+	}
+    </style>
+
+</head>
+<body style='background-color:#AAAAAA'>
+	<div  style='font-size : 36pt;'>
+		<a href='pageInDevelopment.html'>ОБЩАЯ ТАБЛИЦА</a>
+	</div>
+	
+	</br></br></br></br>
+	
+	<div  style='font-size : 36pt;'>
+		<a href='pageInDevelopment.html'>ТАБЛИЦА по классам/дивизионам</a>
+	</div>
+	
+	</br></br></br></br>
+	
+	<div style="padding:2px;"><b>
+		<input style='background-color:#FFFFFF; font-size : 60pt;' type="button" value="Привязать устройство к группе"  onclick="inputGroupControl()" id="inp"></input>
+	</div>
+	
+	</br></br></br></br>
+
+	<div style="padding:2px;"><b>
+		<input style='background-color:#FFFFFF; font-size : 60pt;' type="button" value="Перейти к привязанной группе"  onclick="inputMyGroup()" id="inp"></input>
+	</div>
+	<script type="text/javascript" src="groupForBind.js"></script>
+	<script>
+	if(!document.cookie.includes('userId=')){
+		let time = new Date()
+		let key = 'stk'+time.getMilliseconds()+time.getSeconds()+time.getMinutes()+time.getHours()+time.getDate()+Math.random();
+		let maxAge = 3600*24;
+		document.cookie = 'userId=' + key + '; max-age=' + maxAge;
+	} 
+	function inputGroupControl(){
+		for(let key in groups){
+			let div = document.createElement('div');
+			div.className = "item";
+			div.id = key;
+			div.innerHTML = key;
+			div.onclick = function() {chooseGroup(key)}
+			if(groups[key] != '') div.style.color = '#888888';
+			else div.style.backgroundColor = '#FFFFFF';
+			document.body.append(div);
+		}
+		/*
+		*/
+	}
+	function chooseGroup(id){
+		let pass = prompt('Введит пароль для группы ' + id, "");
+		if (pass == null) window.location = 'wrongPass.html';
+		else window.location = 'groupControl?'+id+'?'+pass;
+	}
+	function inputMyGroup(){
+		window.location = 'groupControl.html';
+	}
+	</script> 
+</body>
+</html>
