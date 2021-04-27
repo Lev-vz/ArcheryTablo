@@ -26,17 +26,24 @@ function setWebSocketClient(){
 				let tableContent = '';
 				//tableContent += '<tr style="background-color:#444444; color:#FFFFFF; text-align: center"><b>'
 				//tableContent += '<td colspan="' + qCols + '">'+ obj.table[0][0] + '</b></td></tr>\n'
-				let bgColor = '#DDDDDD'
+				let g = 240;
+				let b = 255;
+				let r = 200;
 				for(let i = 0; i < obj.table.length; i++){
 					if(obj.table[i].length == 1){
 						tableContent += '<tr style="background-color:#888888; color:#DDDDDD;" colspan="' + qCols + '"><b>'
 						tableContent += '<td>'+ obj.table[i][0] + '</b></td></tr>\n';
 					}else{
+						if(!i){ r = 100; g = 150; b = 150; }
+						else  { r = 200; g = 250; b = 250; }
 						tableContent += '<tr>'//' + bgColor +';">';
 						for(let j = 0; j < obj.table[i].length; j++){
 							let cellContent = obj.table[i][j];
-							if((''+cellContent).length < 3) tableContent += '<td style="background-color:#4488FF" width=20>' + obj.table[i][j] + '</td>';
-							else tableContent += '<td style="background-color:#4488FF">' + obj.table[i][j] + '</td>';
+							let width = ''
+							if((''+cellContent).length < 3) width = ' width=20'
+							let align = ''
+							if(j == 1) align = ' text-align:left;'
+							tableContent += '<td style="background-color:' + rgb2hex(r + 30*(i%2), g + 5*(j%2), b + 5*(!(j%2))) + ';'+ align +'"'+ width +'>' + obj.table[i][j] + '</td>';
 						}
 						tableContent += '</tr>\n';
 					}
@@ -70,4 +77,8 @@ function registration(message, socket){
 		return true;
 	}
 	return false;
+}
+
+function rgb2hex(r, g, b){
+	return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
 }

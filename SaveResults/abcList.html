@@ -26,11 +26,11 @@
 	<div  style='font-size : 20pt;'>
 		<a href='index.html'>На главную</a>
 		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-		<span class='tableTitle' id='abcTable' onclick='getTable(this.id)'>Таблица по алфавиту</span>
+		<span class='tableTitle' id='abcTable' onclick='getTable(this.id)'>&nbsp;Таблица по алфавиту&nbsp;</span>
 		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-		<span class='tableTitle' id='groupTable' onclick='getTable(this.id)'>Таблица по группам</span>
+		<span class='tableTitle' id='groupTable' onclick='getTable(this.id)'>&nbsp;Таблица по группам&nbsp;</span>
 		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-		<span class='tableTitle' id='classTable' onclick='getTable(this.id)'>Таблица по классам</span>
+		<span class='tableTitle' id='classTable' onclick='getTable(this.id)'>&nbsp;Таблица по классам&nbsp;</span>
 	</div>
 	
 	</br>
@@ -41,6 +41,7 @@
 	
 	<script>
 	let currTable = ''
+	
 	function getTable(tableId){
 		if(currTable == tableId) return;
 		currTable = tableId;
@@ -49,7 +50,7 @@
 		for(let i = 0; i < titles.length; i++){
 			titles[i].style.backgroundColor = '#AAAAAA'
 		}
-		document.getElementById(tableId).style.backgroundColor = "#DDDDDD";
+		document.getElementById(tableId).style.backgroundColor = "#DDFFFF";
 	}
 	</script> 
 </body>
