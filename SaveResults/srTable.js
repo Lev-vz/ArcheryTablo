@@ -31,8 +31,8 @@ function setWebSocketClient(){
 				let r = 200;
 				for(let i = 0; i < obj.table.length; i++){
 					if(obj.table[i].length == 1){
-						tableContent += '<tr style="background-color:#888888; color:#DDDDDD;" colspan="' + qCols + '"><b>'
-						tableContent += '<td>'+ obj.table[i][0] + '</b></td></tr>\n';
+						tableContent += '<tr style="background-color:#888888; color:#DDDDDD;"><b>'
+						tableContent += '<td colspan="' + qCols + '">'+ obj.table[i][0] + '</b></td></tr>\n';
 					}else{
 						if(!i){ r = 100; g = 150; b = 150; }
 						else  { r = 200; g = 250; b = 250; }

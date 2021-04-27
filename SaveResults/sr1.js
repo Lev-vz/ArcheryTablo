@@ -76,7 +76,6 @@ try{//Читаем список участников
 			}
 		}
 	}
-	fs.writeFileSync(archList, JSON.stringify(archers), 'utf8');
 }catch(err){
 	console.log('Ошибка чтения списка участников',err);
 	return;
