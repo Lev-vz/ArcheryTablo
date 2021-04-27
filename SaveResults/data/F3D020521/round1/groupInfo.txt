@@ -1,1 +1,1 @@
-{"1":{"firstTarget":1,"currTarget":1,"clientId":"stk9246441626","ready":true,"pass":"1633"},"12":{"firstTarget":12,"currTarget":12,"clientId":"stk35059541626","ready":true,"pass":"3733"}}
+{"1":{"firstTarget":1,"currTarget":7,"clientId":"stk9246441626","ready":true,"pass":"1633"},"12":{"firstTarget":12,"currTarget":13,"clientId":"stk35059541626","ready":true,"pass":"3733"}}

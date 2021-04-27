@@ -82,8 +82,6 @@ try{//Читаем список участников
 	return;
 }
 
-const clients = {};// подключённые клиенты
-
 //let data = {};
 let groupInfo = {};//Информация о группах
 
@@ -132,6 +130,8 @@ exp.get("/*", function (request, response) {
 
 exp.listen(3000);
 //----------------------- Запуск WebSoket Server ------------------------------------
+const clients = {};// подключённые клиенты
+const tables = {};// подключённые таблицы
 
 const webSocketServer = new WebSocketServer.Server({port: 3001});
 
@@ -139,16 +139,27 @@ webSocketServer.on('connection', function(ws) {
 	
 	console.log("новое соединение:" + ws._socket.remoteAddress);
 	ws.send('Hi, client!');
-
+	let tabId = 'x';
+	let clientID = 'y';
+	
 	ws.on('message', function(msg) {
 		console.log('получено сообщение ' + msg);//---------------------------------------------checkOut-----------------------------------------------
 		//console.log("msg.indexOf('Result saver') " + msg.indexOf('Result saver'))
 		let resp = {};
 		let obj = JSON.parse(msg);
 		if(obj.func == 'Result saver'){//если в полученном сообщении есть слово 'Result saver'
-			clients[obj.userId] = ws;			//регистрируем его как получателя информации начале стрельбы
+			clientID = obj.userId;
+			clients[clientID] = ws;			//регистрируем его как получателя информации начале стрельбы
 			srn.getGroupInfo(groupInfo, archers, obj.userId, targets, resp);
 			ws.send(JSON.stringify(resp));
+			console.log('Подключен клиент ' + clientID);
+		}else if(obj.func == 'Result table'){//если в полученном сообщении есть слово 'Result saver'
+			let time = new Date()
+			tabId = 'tab'+time.getMilliseconds()+time.getSeconds()+time.getMinutes()+time.getHours()+time.getDate()+Math.random();
+			tables[tabId] = ws;			//регистрируем его как получателя информации начале стрельбы
+			//srn.getGroupInfo(groupInfo, archers, obj.userId, targets, resp);
+			//ws.send(JSON.stringify(resp));
+			console.log('Подключена таблица ' + tabId);
 		}else{
 			try{
 				switch(obj.func){
@@ -177,6 +188,7 @@ webSocketServer.on('connection', function(ws) {
 							let gr = obj.data.group;
 							if(groupInfo[gr].currTarget < targets.length) groupInfo[gr].currTarget++;
 							else groupInfo[gr].currTarget = 1;
+							saveInFile(setting.currRound + 'groupInfo.txt', groupInfo);
 							srn.getGroupInfo(groupInfo, archers, obj.userId, targets, resp);
 							ws.send(JSON.stringify(resp));
 						}
@@ -186,7 +198,14 @@ webSocketServer.on('connection', function(ws) {
 							let gr = obj.data.group;
 							if(groupInfo[gr].currTarget > 1) groupInfo[gr].currTarget--;
 							else groupInfo[gr].currTarget = targets.length;
+							saveInFile(setting.currRound + 'groupInfo.txt', groupInfo);
 							srn.getGroupInfo(groupInfo, archers, obj.userId, targets, resp);
+							ws.send(JSON.stringify(resp));
+						}
+						break;
+					case 'getTable' :
+						{
+							srn.getTable(groupInfo, archers, obj.data, resp);
 							ws.send(JSON.stringify(resp));
 						}
 						break;
@@ -200,8 +219,15 @@ webSocketServer.on('connection', function(ws) {
 	});
 
 	ws.on('close', function() {
-		console.log('3акрыто соединение ' + ws._socket.remoteAddress);
-		delete clients[ws._socket.remoteAddress];
+		if(clientID in clients){
+			delete clients[clientID];
+			console.log('3акрыто соединение c клиентом ' + clientID);
+		}
+		if(tabId in tables){
+			delete tables[tabId];
+			console.log('3акрыто соединение c таблицей ' + tabId);
+		}
+		
 	});
 
 });

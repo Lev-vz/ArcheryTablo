@@ -1,0 +1,56 @@
+<!DOCTYPE html/>
+<html>
+<head>
+	<title>Таблица по алфавиту</title>
+	<meta charset="utf-8">
+	<style>
+		table {
+			background-color:#DDDDDD;
+			color: #000000;
+			font-size : 12pt;
+			text-align: center;
+		}
+		span.tableTitle {
+			/*font-family: Verdana, Arial, Helvetica, sans-serif; 
+			font-size : 44pt;*/
+			color: #000000;
+			padding: 1px;
+			margin : 2px;
+			background-color:#DDDDDD;
+	}
+
+    </style>
+
+</head>
+<body style='font-family: Verdana, Arial, Helvetica, sans-serif;background-color:#AAAAAA'>
+	<div  style='font-size : 20pt;'>
+		<a href='index.html'>На главную</a>
+		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		<span class='tableTitle' id='abcTable' onclick='getTable(this.id)'>Таблица по алфавиту</span>
+		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		<span class='tableTitle' id='groupTable' onclick='getTable(this.id)'>Таблица по группам</span>
+		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		<span class='tableTitle' id='classTable' onclick='getTable(this.id)'>Таблица по классам</span>
+	</div>
+	
+	</br>
+	
+	<div><table border=0 cellpadding=5' id='ResultTable'></div>
+	
+	<script type="text/javascript" src="srTable.js"></script>
+	
+	<script>
+	let currTable = ''
+	function getTable(tableId){
+		if(currTable == tableId) return;
+		currTable = tableId;
+		wsRequest(tableId);
+		let titles = document.getElementsByClassName('tableTitle');
+		for(let i = 0; i < titles.length; i++){
+			titles[i].style.backgroundColor = '#AAAAAA'
+		}
+		document.getElementById(tableId).style.backgroundColor = "#DDDDDD";
+	}
+	</script> 
+</body>
+</html>
