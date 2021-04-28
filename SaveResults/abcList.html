@@ -26,21 +26,23 @@
 	<div  style='font-size : 20pt;'>
 		<a href='index.html'>На главную</a>
 		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-		<span class='tableTitle' id='abcTable' onclick='getTable(this.id)'>&nbsp;Таблица по алфавиту&nbsp;</span>
+		<span class='tableTitle' id='abcTable' onclick='getTable(this.id)'>&nbsp;Распределение по группам&nbsp;</span>
 		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-		<span class='tableTitle' id='groupTable' onclick='getTable(this.id)'>&nbsp;Таблица по группам&nbsp;</span>
+		<span class='tableTitle' id='groupTable' onclick='getTable(this.id)'>&nbsp;Результаты по группам&nbsp;</span>
 		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-		<span class='tableTitle' id='classTable' onclick='getTable(this.id)'>&nbsp;Таблица по классам&nbsp;</span>
+		<span class='tableTitle' id='classTable' onclick='getTable(this.id)'>&nbsp;Результаты по классам&nbsp;</span>
 	</div>
 	
 	</br>
 	
 	<div><table border=0 cellpadding=5' id='ResultTable'></div>
 	
+	<script type="text/javascript" src="const.js"></script>
 	<script type="text/javascript" src="srTable.js"></script>
 	
 	<script>
 	let currTable = ''
+	///getTable('abcTable')
 	
 	function getTable(tableId){
 		if(currTable == tableId) return;
@@ -50,7 +52,7 @@
 		for(let i = 0; i < titles.length; i++){
 			titles[i].style.backgroundColor = '#AAAAAA'
 		}
-		document.getElementById(tableId).style.backgroundColor = "#DDFFFF";
+		document.getElementById(tableId).style.backgroundColor = "#FFFFDD";
 	}
 	</script> 
 </body>

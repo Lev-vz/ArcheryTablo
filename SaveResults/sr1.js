@@ -64,8 +64,8 @@ try{//Читаем список участников
 	for(let key in archers){
 		let archerData = {};
 		if(uploadFromFile(setting.currRound + key.trim()+'.pnt', archerData)){
+			//console.log('archerData='+JSON.stringify(archerData.data));//---------------------------------------------checkOut-----------------------------------------------
 			archers[key]['arr'] = archerData.data.arr;
-			//console.log('archerData='+JSON.stringify(archerData.data.arr));//---------------------------------------------checkOut-----------------------------------------------
 		}else{
 			archers[key]['arr']=[]
 			for(let i=0; i<cnst.Q_TARGET; i++){
@@ -190,6 +190,10 @@ webSocketServer.on('connection', function(ws) {
 							saveInFile(setting.currRound + 'groupInfo.txt', groupInfo);
 							srn.getGroupInfo(groupInfo, archers, obj.userId, targets, resp);
 							ws.send(JSON.stringify(resp));
+							//----- Пересчитать таблицу и разослать всем зарегистрированным просмолтрищикам таблиц ------------
+							resp = {};
+							srn.getTable(groupInfo, archers, resp);
+							for(let key in tables) tables[key].send(JSON.stringify(resp));
 						}
 						break;
 					case cnst.PREV_TARGET :
@@ -204,7 +208,7 @@ webSocketServer.on('connection', function(ws) {
 						break;
 					case 'getTable' :
 						{
-							srn.getTable(groupInfo, archers, obj.data, resp);
+							srn.getTable(groupInfo, archers, resp);
 							ws.send(JSON.stringify(resp));
 						}
 						break;

@@ -126,114 +126,31 @@ module.exports.saveGroupInfo = function(groupInfo, key, userId, fs, path){
 	}
 }
 
-module.exports.getTable = function(groupInfo, archers, tableType, resp){
+module.exports.getTable = function(groupInfo, archers, resp){
 	//console.log('archers='+JSON.stringify(archers));//---------------------------------------------checkOut-----------------------------------------------
 	resp['table']=[]
-	switch(tableType){
-		case 'abcTable':
-			module.exports.getAbcTable(groupInfo, archers, resp)
-			break;
-		case 'groupTable':
-			module.exports.getGroupTable(groupInfo, archers, resp)
-			break;
-		case 'classTable':
-			break;
-	}
-}
-
-module.exports.getAbcTable = function(groupInfo, archers, resp){
-	let i = 1;
-	resp.table[0] = [];
-	resp.table[0][0] = '№';
-	resp.table[0][1] = 'Стрелок';
-	resp.table[0][2] = 'Гр./<br/>инд';
-	resp.table[0][3] = 'Класс, дивизион';
-	
-	for(let j = 0; j < cnst.Q_TARGET; j++){
-		resp.table[0][j + 4] = j + 1;
-	}
-
-	resp.table[0][4 + cnst.Q_TARGET] = 'Cумма';
-	resp.table[0][5 + cnst.Q_TARGET] = 'Средняя<br/>стрела';
-	
-	let keyArr = []
-	for(let key in archers)	keyArr.push(key);
-	keyArr.sort();
-	
-	for(let i = 1; i <= keyArr.length; i++){
-		let key = keyArr[i-1];
+	let i = 0;
+	for(let key in archers){
 		resp.table[i] = [];
-		resp.table[i][0] = i;
-		resp.table[i][1] = key;
-		resp.table[i][2] = archers[key]['group'] + archers[key]['index'];
-		resp.table[i][3] = archers[key]['class'];
+		let pos = 0;
+		resp.table[i][pos++] = key;
+		resp.table[i][pos++] = archers[key]["group"];
+		resp.table[i][pos++] = archers[key]["index"];
+		resp.table[i][pos++] = archers[key]["class"];
+		resp.table[i][pos++] = archers[key].club;
 		for(let j = 0; j < archers[key].arr.length; j++){
-			resp.table[i][j+4] = '';
+			resp.table[i][j+pos] = '';
 		}
-		getNumbersForTable(groupInfo, archers, i, key, 4, resp)
+		getNumbersForTable(groupInfo, archers, i, key, pos, resp)
+		i++;
 	}
 	//console.log('resp='+JSON.stringify(resp));//---------------------------------------------checkOut-----------------------------------------------
 }
 
-function compareTxt(a, b) {
-  if (a.txt < b.txt) return -1;
-  if (a.txt > b.txt) return 1;
-  if (a.txt == b.txt) return 0;
-}
-
-function compareNumb(a, b) {
-  if (a.numb < b.numb) return -1;
-  if (a.numb > b.numb) return 1;
-  if (a.numb == b.numb) return 0;
-}
-
-module.exports.getGroupTable = function(groupInfo, archers, resp){
-	let i = 1;
-	resp.table[0] = [];
-	resp.table[0][0] = '№';
-	resp.table[0][1] = 'Стрелок';
-	resp.table[0][2] = 'инд.';
-	resp.table[0][3] = 'Класс, дивизион';
-	
-	for(let j = 0; j < cnst.Q_TARGET; j++){
-		resp.table[0][j + 4] = j + 1;
-	}
-
-	resp.table[0][4 + cnst.Q_TARGET] = 'Cумма';
-	resp.table[0][5 + cnst.Q_TARGET] = 'Средняя<br/>стрела';
-	
-	let keyArr = []
-	for(let key in archers){
-		keyArr.push({name:key, numb:parseInt(archers[key]['group']), txt:archers[key]['index']});
-	}
-	keyArr.sort(compareTxt);
-	keyArr.sort(compareNumb);
-	let currGroup = '';
-	let dop = 0;
-	for(let i = 1; i <= keyArr.length; i++){
-		let key = keyArr[i-1];
-		if(currGroup != (''+archers[key.name]['group'])){
-			currGroup = (''+archers[key.name]['group'])
-			resp.table[i + dop] = [];
-			resp.table[i + dop][0] = 'Группа №' + currGroup;
-			dop++;
-		}
-		resp.table[i + dop] = [];
-		resp.table[i + dop][0] = i;
-		resp.table[i + dop][1] = key.name;
-		resp.table[i + dop][2] = archers[key.name]['group'] + archers[key.name]['index'];
-		resp.table[i + dop][3] = archers[key.name]['class'];
-		for(let j = 0; j < archers[key.name].arr.length; j++){
-			resp.table[i + dop][j+4] = '';
-		}
-		getNumbersForTable(groupInfo, archers, i + dop, key.name, 3, resp)
-	}
-}
-
 function getNumbersForTable(groupInfo, archers, i, key, start, resp){
-	//console.log('archers[key]["group"]='+archers[key]["group"]);//---------------------------------------------checkOut-----------------------------------------------
-	let curr = groupInfo[archers[key]["group"]].currTarget;
-	let first = groupInfo[archers[key]["group"]].firstTarget;
+	//console.log('archers['+key+']["group"]='+archers[key].group + ', groupInfo[archers['+key+'].group].currTarget='+groupInfo[archers[key].group].currTarget);//---------------------------------------------checkOut-----------------------------------------------
+	let curr = groupInfo[archers[key].group].currTarget;
+	let first = groupInfo[archers[key].group].firstTarget;
 	let qTarg = curr - first;
 	if(qTarg < 0) qTarg += 24;
 	
@@ -256,8 +173,15 @@ function getNumbersForTable(groupInfo, archers, i, key, start, resp){
 			resp.table[i][j+start] = '' + local
 		}
 	}
+	if(curr == first){
+		for(let j = 0; j < cnst.Q_TARGET; j++){
+			let local = archers[key].arr[j][0] + archers[key].arr[j][1] + archers[key].arr[j][2];
+			summ += local;
+			if(summ > 0)resp.table[i][j+start] = '' + local;
+		}
+		qTarg = 24
+	}
 	resp.table[i][start + cnst.Q_TARGET] = summ;
 	if(qTarg > 0) resp.table[i][start+1 + cnst.Q_TARGET] = (summ/qTarg/2).toFixed(2);
 	else resp.table[i][start+1 + cnst.Q_TARGET] = 0;
-	
 }

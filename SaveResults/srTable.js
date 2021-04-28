@@ -17,38 +17,162 @@ function setWebSocketClient(){
 		try{
 			let obj = JSON.parse(event.data);
 			if('table' in obj){
-				let tmp = document.getElementById('ResultTable')
-				if(!tmp) return;
-				let qCols = 1;
-				for(let i = 0; i < obj.table.length; i++){
-					if(obj.table[i].length > qCols) qCols = obj.table[i].length;
-				}
-				let tableContent = '';
-				//tableContent += '<tr style="background-color:#444444; color:#FFFFFF; text-align: center"><b>'
-				//tableContent += '<td colspan="' + qCols + '">'+ obj.table[0][0] + '</b></td></tr>\n'
-				let g = 240;
-				let b = 255;
-				let r = 200;
-				for(let i = 0; i < obj.table.length; i++){
-					if(obj.table[i].length == 1){
-						tableContent += '<tr style="background-color:#888888; color:#DDDDDD;"><b>'
-						tableContent += '<td colspan="' + qCols + '">'+ obj.table[i][0] + '</b></td></tr>\n';
-					}else{
-						if(!i){ r = 100; g = 150; b = 150; }
-						else  { r = 200; g = 250; b = 250; }
-						tableContent += '<tr>'//' + bgColor +';">';
-						for(let j = 0; j < obj.table[i].length; j++){
-							let cellContent = obj.table[i][j];
-							let width = ''
-							if((''+cellContent).length < 3) width = ' width=20'
-							let align = ''
-							if(j == 1) align = ' text-align:left;'
-							tableContent += '<td style="background-color:' + rgb2hex(r + 30*(i%2), g + 5*(j%2), b + 5*(!(j%2))) + ';'+ align +'"'+ width +'>' + obj.table[i][j] + '</td>';
+				let showTable = document.getElementById('ResultTable')
+				if(!showTable) return;
+				switch(currTable){
+					case 'abcTable':
+					showTable.innerHTML = '';
+					{
+						let keyArr = []
+						for(let i = 0; i < obj.table.length; i++){
+							keyArr.push({'npp':i, 'txt':obj.table[i][0]});
 						}
-						tableContent += '</tr>\n';
+						keyArr.sort(compareTxt);
+						// Insert a row in the table at row index 0
+						let newRow = showTable.insertRow(0);
+						newRow.style.backgroundColor = '#444444';
+						newRow.style.color = '#FFFFFF';
+						newRow.insertCell().innerHTML = '№';
+						newRow.insertCell().innerHTML = 'Имя';
+						newRow.insertCell().innerHTML = 'Класс/Дивизион';
+						newRow.insertCell().innerHTML = 'Клуб';
+						newRow.insertCell().innerHTML = 'Группа';
+						newRow.insertCell().innerHTML = 'Индекс';
+						for(let i = 0; i < keyArr.length; i++){
+							let newRow = showTable.insertRow();
+							newRow.style.backgroundColor = (i%2)? '#EEEEEE' : 'FFFFDD';
+							newRow.insertCell().innerHTML = i + 1;
+							
+							let name = newRow.insertCell()
+							name.innerHTML = obj.table[keyArr[i].npp][0];//имя
+							name.style.textAlign = 'left';//
+							
+							newRow.insertCell().innerHTML = obj.table[keyArr[i].npp][3];//класс
+							newRow.insertCell().innerHTML = obj.table[keyArr[i].npp][4];//клуб
+							newRow.insertCell().innerHTML = obj.table[keyArr[i].npp][1];//группа
+							newRow.insertCell().innerHTML = obj.table[keyArr[i].npp][2];//индекс
+						}
 					}
+					break;
+					/**/
+					case 'groupTable':
+					showTable.innerHTML = '';
+					{
+						let keyArr = []
+						for(let i = 0; i < obj.table.length; i++){
+							keyArr.push({'npp':i, 'txt': obj.table[i][1]+obj.table[i][2], 'num':parseInt(obj.table[i][1])});
+						}
+						keyArr.sort(compareTxt);
+						keyArr.sort(compareNum);
+						let newRow = showTable.insertRow(0);
+						newRow.style.backgroundColor = '#444444';
+						newRow.style.color = '#FFFFFF';
+						//------------- Заголовки --------------------
+						newRow.insertCell().innerHTML = '№';
+						newRow.insertCell().innerHTML = 'Имя';
+						newRow.insertCell().innerHTML = 'Класс/Дивизион';
+						let tmp;
+						for(let i = 0; i < Q_TARGET; i++){
+							tmp = newRow.insertCell()
+							tmp.width = 20;
+							tmp.innerHTML = i+1
+						}
+						newRow.insertCell().innerHTML = 'Сумма';
+						newRow.insertCell().innerHTML = 'Средняя</br>стрела';
+						let group = '';
+						//-------- заполнение таблицы -------------------
+						for(let i = 0; i < keyArr.length; i++){
+							newRow = showTable.insertRow();
+							if(group != obj.table[keyArr[i].npp][1]){
+								group = obj.table[keyArr[i].npp][1];
+								
+								newRow.style.backgroundColor = '#888888';
+								newRow.style.color = '#FFFFDD';
+								
+								tmp = newRow.insertCell();
+								tmp.colSpan = Q_TARGET + 6;
+								tmp.innerHTML = 'Группа №' + group;
+								newRow = showTable.insertRow();
+							}
+							newRow.style.backgroundColor = (i%2)? '#EEEEEE' : '#FFFFDD';
+							newRow.insertCell().innerHTML = i + 1;
+							
+							let name = newRow.insertCell()
+							name.innerHTML = obj.table[keyArr[i].npp][0];
+							name.style.textAlign = 'left';//
+							
+							newRow.insertCell().innerHTML = obj.table[keyArr[i].npp][3];
+							for(let j = 0; j < Q_TARGET; j++){
+								tmp = newRow.insertCell()
+								//tmp.width = 20;
+								tmp.innerHTML = obj.table[keyArr[i].npp][j+5]
+							}
+							newRow.insertCell().innerHTML = obj.table[keyArr[i].npp][Q_TARGET + 5];
+							newRow.insertCell().innerHTML = obj.table[keyArr[i].npp][Q_TARGET + 6];
+						}
+					}
+					break;
+					case 'classTable':
+					showTable.innerHTML = '';
+					{
+						let keyArr = []
+						for(let i = 0; i < obj.table.length; i++){
+							keyArr.push({'npp':i, 'txt': obj.table[i][3], 'num':parseFloat(obj.table[i][Q_TARGET + 6])});
+						}
+						keyArr.sort(compareNum90);
+						keyArr.sort(compareTxt);
+						let newRow = showTable.insertRow(0);
+						newRow.style.backgroundColor = '#444444';
+						newRow.style.color = '#FFFFFF';
+						//------------- Заголовки --------------------
+						newRow.insertCell().innerHTML = '№';
+						newRow.insertCell().innerHTML = 'Имя';
+						newRow.insertCell().innerHTML = 'Гр./</br>инд';
+						let tmp;
+						for(let i = 0; i < Q_TARGET; i++){
+							tmp = newRow.insertCell()
+							tmp.width = 20;
+							tmp.innerHTML = i+1
+						}
+						newRow.insertCell().innerHTML = 'Сумма';
+						newRow.insertCell().innerHTML = 'Средняя</br>стрела';
+						let cassDiv = '';
+						//-------- заполнение таблицы -------------------
+						let k = 1;
+						for(let i = 0; i < keyArr.length; i++){
+							newRow = showTable.insertRow();
+							if(cassDiv != obj.table[keyArr[i].npp][3]){
+								cassDiv = obj.table[keyArr[i].npp][3];
+								
+								newRow.style.backgroundColor = '#888888';
+								newRow.style.color = '#FFFFDD';
+								
+								tmp = newRow.insertCell();
+								tmp.colSpan = Q_TARGET + 6;
+								tmp.innerHTML = cassDiv;
+								newRow = showTable.insertRow();
+								k = 1;
+							}
+							newRow.style.backgroundColor = (k%2)? '#EEEEEE' : '#FFFFDD';
+							newRow.insertCell().innerHTML = k++;
+							
+							let name = newRow.insertCell()
+							name.innerHTML = obj.table[keyArr[i].npp][0];
+							name.style.textAlign = 'left';//
+							
+							newRow.insertCell().innerHTML = obj.table[keyArr[i].npp][1] + obj.table[keyArr[i].npp][2];
+							for(let j = 0; j < Q_TARGET; j++){
+								tmp = newRow.insertCell()
+								//tmp.width = 20;
+								tmp.innerHTML = obj.table[keyArr[i].npp][j+5]
+							}
+							newRow.insertCell().innerHTML = obj.table[keyArr[i].npp][Q_TARGET + 5];
+							newRow.insertCell().innerHTML = obj.table[keyArr[i].npp][Q_TARGET + 6];
+						}
+					}
+					break;
+					/**/
 				}
-				tmp.innerHTML = tableContent;
 			}
 		}catch(err){};
 	};
@@ -74,6 +198,7 @@ function registration(message, socket){
 		let obj = {};
 		obj['func'] = 'Result table';
 		socket.send(JSON.stringify(obj));
+		getTable('abcTable');
 		return true;
 	}
 	return false;
@@ -81,4 +206,21 @@ function registration(message, socket){
 
 function rgb2hex(r, g, b){
 	return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+}
+
+function compareTxt(a, b) {
+  if (a.txt < b.txt) return -1;
+  if (a.txt > b.txt) return 1;
+  if (a.txt == b.txt) return 0;
+}
+
+function compareNum(a, b) {
+  if (a.num < b.num) return -1;
+  if (a.num > b.num) return 1;
+  if (a.num == b.num) return 0;
+}
+function compareNum90(a, b) {
+  if (a.num > b.num) return -1;
+  if (a.num < b.num) return 1;
+  if (a.num == b.num) return 0;
 }
