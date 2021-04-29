@@ -95,7 +95,7 @@ module.exports.checkPass = function(arg, userId, groups, fs, path){ //прове
 			return '/wrongPass.html';
 		}
 	}
-	else if(!(arg.includes('.html') || arg.includes('.htm') || arg.includes('.js') || arg.includes('.ico'))) return arg + ".html";
+	else if(!(arg.includes('.html') || arg.includes('.htm') || arg.includes('.js') || arg.includes('.ico') || arg.includes('.jpg') || arg.includes('.pnd'))) return arg + ".html";
 	
 	return arg;
 }
