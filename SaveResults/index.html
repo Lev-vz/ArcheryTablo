@@ -16,6 +16,18 @@
 		float: left;
 		text-align : center;
 	}
+	input {
+		font-family: Verdana, Arial Black, Helvetica, sans-serif; 
+		font-weight:bolder; 
+		font-size : 36pt;/* Размер шрифта в пунктах */ 
+		width : 420px;
+		height : 250px;
+		border:solid 2 black;
+		border-radius: 30px;
+		box-shadow: 5px 5px 10px 2px rgba(0,0,0,0.7);
+		white-space: pre-line;
+		margin : 20px;
+	}
     </style>
 
 </head>
@@ -27,22 +39,27 @@
 	</br></br></br></br>
 	
 	<div style="padding:2px;"><b>
-		<input style='background-color:#FFFFFF; font-size : 60pt;' type="button" value="Привязать устройство к группе"  onclick="inputGroupControl()" id="inp"></input>
+		<input type="button" value="Привязать устройство к группе"  onclick="inputGroupControl()" id="inp"></input>
+		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		<input type="button" value="Перейти к привязанной группе"  onclick="inputMyGroup()" id="inp"></input>
 	</div>
 	
-	</br></br></br></br>
-
-	<div style="padding:2px;"><b>
-		<input style='background-color:#FFFFFF; font-size : 60pt;' type="button" value="Перейти к привязанной группе"  onclick="inputMyGroup()" id="inp"></input>
-	</div>
 	<script type="text/javascript" src="groupForBind.js"></script>
+	<script type="text/javascript" src="clientTools.js"></script>
 	<script>
-	if(!document.cookie.includes('userId=')){
-		let time = new Date()
+	//------ Устанавливаем вечную куку - она всегда имеет завтрашний срок смерти ------
+	let time = new Date();
+	time.setDate(time.getDate() + 1);
+	
+	if(!document.cookie.includes('userArcherTournamentId=')){
+		alert('Для работы с Системой Обслуживания Лучных Турниров необходимо использование технологии Cookie. Без этого никак!')
 		let key = 'stk'+time.getMilliseconds()+time.getSeconds()+time.getMinutes()+time.getHours()+time.getDate()+Math.random();
-		let maxAge = 3600*24;
-		document.cookie = 'userId=' + key + '; max-age=' + maxAge;
-	} 
+		document.cookie = 'userArcherTournamentId=' + key + '; expires=' + time;
+	}else{
+		let userId = getUserId(document.cookie);
+		document.cookie = 'userArcherTournamentId=' + userId + '; expires=' + time;
+	}
+	//-------- 
 	function inputGroupControl(){
 		for(let key in groups){
 			let div = document.createElement('div');
@@ -54,8 +71,6 @@
 			else div.style.backgroundColor = '#FFFFFF';
 			document.body.append(div);
 		}
-		/*
-		*/
 	}
 	function chooseGroup(id){
 		let pass = prompt('Введит пароль для группы ' + id, "");

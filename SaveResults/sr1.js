@@ -113,7 +113,7 @@ const exp = express();
 exp.use(cookieParser('secret key'))
 
 exp.get("/", function (request, response) {
-	console.log('Cookie/: ', request.cookies['userId'])//---------------------------------------------checkOut-----------------------------------------------
+	console.log('Cookie/: ', request.cookies['userArcherTournamentId'])//---------------------------------------------checkOut-----------------------------------------------
     response.sendFile(__dirname + '/index.html');
 });
 
@@ -121,8 +121,8 @@ exp.get("/favicon.ico", function(request, response) {
 });
 //-----------------------------------------------------------
 exp.get("/*", function (request, response) {
-	console.log('Cookie/*: ', request.cookies['userId'])//---------------------------------------------checkOut-----------------------------------------------
-	let arg = srn.checkPass(request.url, request.cookies['userId'], groupInfo, fs, setting['currRound']);
+	console.log('Cookie/*: ', request.cookies['userArcherTournamentId'])//---------------------------------------------checkOut-----------------------------------------------
+	let arg = srn.checkPass(request.url, request.cookies['userArcherTournamentId'], groupInfo, fs, setting['currRound']);
 	console.log('arg = ' + arg);//---------------------------------------------checkOut-----------------------------------------------
     response.sendFile(__dirname + arg);
 });

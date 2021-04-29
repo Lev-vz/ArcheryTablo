@@ -5,14 +5,17 @@ if(x>0) ip = ip.substring(0,x);
 
 let socket = null;
 let timeoutId = null;
+let isResponce = false;
 
 setWebSocketClient();
 
 function setWebSocketClient(){
-	//if(timeoutId) clearTimeout(timeoutId);
+	if(timeoutId) clearTimeout(timeoutId);
 	socket = new WebSocket('ws://'+ip+':3001');// создать подключение
 
 	socket.onmessage = function(event) {// обработчик входящих сообщений
+		isResponce = true;
+		if(timeoutId) clearTimeout(timeoutId);
 		registration(event.data, socket)
 		
 		try{
@@ -20,12 +23,20 @@ function setWebSocketClient(){
 			for(key in obj){
 				let tmp = document.getElementById(key)
 				if(tmp){
-					tmp.innerHTML = obj[key];
+					let parsI = parseInt(key)
+					if(key.length==2){
+						if(parsI >= (row * 10 + arrow) && (''+obj[key]) == '0') tmp.innerHTML = ''
+						else if((''+obj[key]) == '0') tmp.innerHTML = 'M'
+						else tmp.innerHTML = obj[key];
+					} else tmp.innerHTML = obj[key];
 					if(key == 'ready'){
+						/*
 						if(obj[key] == GROUP_READY){
 							tmp.style.color = '#000000'
 							tmp.style.backgroundColor = '#DDDDDD'
-						}else if(obj[key] == ALL_READY){
+						}else 
+							*/
+						if(obj[key] == ALL_READY){
 							tmp.style.color = '#000000'
 							tmp.style.backgroundColor = '#44FF44'
 						}else{
@@ -40,9 +51,11 @@ function setWebSocketClient(){
 							document.getElementById('23').innerHTML = '';
 							document.getElementById('33').innerHTML = '';
 							document.getElementById('43').innerHTML = '';
+							document.getElementById('onlyField').innerHTML = '';
 						}else{
 							document.getElementById('FieldButton').style.display = 'block'
 							document.getElementById('3dButton').style.display = 'none'
+							document.getElementById('onlyField').innerHTML = '3';
 						}
 					}
 				}
@@ -51,23 +64,19 @@ function setWebSocketClient(){
 	};
 
 	socket.onclose = function(event) {
-		//alert('No connect with WebSocketServer');
-		//timeoutId = setTimeout(setWebSocketClient, 10000); //Если было отключение сервера, клиент раз в 10 секунд пытается подключиться снова
+		//alert('Закрыт коннект');
+		timeoutId = setTimeout(setWebSocketClient, 3000); //Если было отключение сервера, клиент раз в 10 секунд пытается подключиться снова
 	};
 
 	//socket.onerror = function(error) {alert(`[error] ${error.message}`);};
 }
-function getUserId(cook){
-	let start = cook.indexOf('userId=');
-	if(start<0) return '';
-	start += 7;
-	let end = cook.indexOf(';',start);
-	if(end > 0) return cook.substring(start, end)
-	else  		return cook.substring(start)
-}
 
 function wsRequest(func, data) {// показать сообщение в div#subscribe
-	if(!socket) return;
+	if(!socket){
+		alert('Не обнаружено коннекта. Перезагрузите страницу');
+		return;
+	}
+	isResponce = false;
 	let obj = {};
 	obj['func'] = func;
 	obj['data'] = data;

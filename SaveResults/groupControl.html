@@ -72,7 +72,7 @@
 	<!--table border=3 cellpadding=5 style='background-color:#DDDDDD; font-size : 40pt;'-->
 	<table border=1 cellpadding=5'>
 		<tr style="background-color:#444444; color:#DDDDDD; text-align: center">
-			<td >Имя</td><td width=80>1</td><td width=80>2</td><td width=80>3</td>
+			<td >Имя</td><td width=80>1</td><td width=80>2</td><td id="onlyField" width=80>3</td>
 			<td style='font-size : 20pt;' width=85>Сумма</td>
 			<td style='font-size : 20pt;' width=105 >Нараст. итог</td>
 		<tr>
@@ -148,8 +148,8 @@
 		if(targetType == '3D') qArrows = 2;
 		else qArrows = 3;
 		
-		row = 0;
-		arrow = 0;
+		row = 100;
+		arrow = 100;
 		
 		for(let i = 1; i <= qArhers; i++){
 			for(let j = 1; j <= qArrows; j++){
@@ -182,8 +182,8 @@
 				arrow = 1;
 				row++;
 			}else{
-				arrow = 0;
-				row = 0;
+				arrow = 100;
+				row = 100;
 			}
 		}
 		setPoints(row + "" + arrow);
@@ -193,17 +193,29 @@
 	}
 	
 	function prevTarget(){
+		if(document.getElementById('ready').innerHTML != ALL_READY){
+			alert('Нельзя переключаться на следующую мишень, пока нет разрешения стрельбы');
+			return;
+		}
 		if(confirm('Вы уверены, что хотите вернуться на предыдущую мишень?')){
 			let request = {};
 			request['group'] = document.getElementById('group').innerHTML;
 			wsRequest(PREV_TARGET,request);
-			row = 1;
-			arrow = 1;
+			row = 100;
+			arrow = 100;
 			setPoints(row + "" + arrow);
 		}
 	}
 	
 	function nextTarget(){
+		if(document.getElementById('ready').innerHTML != ALL_READY){
+			alert('Нельзя переключаться на следующую мишень, пока нет разрешения стрельбы');
+			return;
+		}
+		if(row < 11){
+			alert('Не все стрелы записаны');
+			return;
+		}
 		let request = {};
 		request['group'] = document.getElementById('group').innerHTML;
 		wsRequest(NEXT_TARGET,request);
@@ -214,5 +226,6 @@
 	</script> 
 	<script type="text/javascript" src="srClient.js"></script> 
 	<script type="text/javascript" src="const.js"></script> 
+	<script type="text/javascript" src="clientTools.js"></script> 
 </body>
 </html>
