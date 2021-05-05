@@ -54,7 +54,6 @@ function setWebSocketClient(){
 						}
 					}
 					break;
-					/**/
 					case 'groupTable':
 					showTable.innerHTML = '';
 					{
@@ -171,7 +170,31 @@ function setWebSocketClient(){
 						}
 					}
 					break;
-					/**/
+					case 'groupControl':
+					showTable.innerHTML = '';
+					{
+						let newRow = showTable.insertRow();
+						newRow.style.backgroundColor = '#444444';
+						newRow.style.color = '#FFFFFF';
+						//------------- Заголовки --------------------
+						newRow.insertCell().innerHTML = '№';
+						newRow.insertCell().innerHTML = 'Первая</br>мишень';
+						newRow.insertCell().innerHTML = 'Текущая</br>мишень';
+						newRow.insertCell().innerHTML = 'Последняя</br>заполненная</br>мишень';
+						newRow.insertCell().innerHTML = 'clientId';
+						newRow.insertCell().innerHTML = 'Готовность';
+						newRow.insertCell().innerHTML = 'Пароль';
+						//-------- заполнение таблицы -------------------
+						for(let i = 0; i < obj.table.length; i++){
+							newRow = showTable.insertRow();
+							newRow.style.backgroundColor = (i%2)? '#EEEEEE' : '#FFFFDD';
+							for(let j = 0; j < obj.table[i].length; j++){
+								tmp = newRow.insertCell()
+								tmp.innerHTML = obj.table[i][j]
+							}
+						}
+					}
+					break;
 				}
 			}
 		}catch(err){};
@@ -179,7 +202,7 @@ function setWebSocketClient(){
 
 	socket.onclose = function(event) {
 		//alert('No connect with WebSocketServer');
-		timeoutId = setTimeout(setWebSocketClient, 60000); //Если было отключение сервера, клиент раз в ... секунд пытается подключиться снова
+		timeoutId = setTimeout(setWebSocketClient, 3000); //Если было отключение сервера, клиент раз в ... секунд пытается подключиться снова
 	};
 
 	//socket.onerror = function(error) {alert(`[error] ${error.message}`);};

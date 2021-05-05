@@ -95,7 +95,8 @@ module.exports.checkPass = function(arg, userId, groups, fs, path){ //прове
 			return '/wrongPass.html';
 		}
 	}
-	else if(!(arg.includes('.html') || arg.includes('.htm') || arg.includes('.js') || arg.includes('.ico'))) return arg + ".html";
+	else if(!(arg.includes('.html') || arg.includes('.htm') || arg.includes('.js') ||
+				arg.includes('.ico') || arg.includes('.jpg') || arg.includes('.png'))) return arg + ".html";
 	
 	return arg;
 }
@@ -142,6 +143,22 @@ module.exports.getTable = function(groupInfo, archers, resp){
 			resp.table[i][j+pos] = '';
 		}
 		getNumbersForTable(groupInfo, archers, i, key, pos, resp)
+		i++;
+	}
+	//console.log('resp='+JSON.stringify(resp));//---------------------------------------------checkOut-----------------------------------------------
+}
+
+module.exports.getGroupTable = function(groupInfo, resp){
+	//console.log('archers='+JSON.stringify(archers));//---------------------------------------------checkOut-----------------------------------------------
+	resp['table']=[]
+	let i = 0;
+	for(let key in groupInfo){
+		resp.table[i] = [];
+		let j = 1;
+		resp.table[i][0] = key;
+		for(let key2 in groupInfo[key]){
+			resp.table[i][j++] = groupInfo[key][key2];
+		}
 		i++;
 	}
 	//console.log('resp='+JSON.stringify(resp));//---------------------------------------------checkOut-----------------------------------------------

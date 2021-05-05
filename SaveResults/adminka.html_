@@ -1,0 +1,87 @@
+<!DOCTYPE html/>
+<html>
+<head>
+	<title>Администрация соревнования</title>
+	<meta charset="utf-8">
+	<style>
+	table {
+		background-color:#DDDDDD;
+		color: #000000;
+		font-size : 12pt;
+		text-align: center;
+	}
+	span.tableTitle {
+		/*font-family: Verdana, Arial, Helvetica, sans-serif; 
+		font-size : 44pt;*/
+		color: #000000;
+		padding: 1px;
+		margin : 5px;
+		background-color:#DDDDDD;
+		-webkit-touch-callout: none;
+		-webkit-user-select: none;
+		-khtml-user-select: none;
+		-moz-user-select: none;
+		-ms-user-select: none;
+		user-select: none;
+	}
+	span.buttons {
+		font-family: Verdana, Arial Black, Helvetica, sans-serif; 
+		font-weight:bolder; 
+		font-size : 36pt;/* Размер шрифта в пунктах */ 
+		border:solid 2 black;
+		border-radius: 30px;
+		box-shadow: 5px 5px 10px 2px rgba(0,0,0,0.7);
+		padding: 5px;
+		margin : 5px;
+		background-color:#DDDDDD;
+		-webkit-touch-callout: none;
+		-webkit-user-select: none;
+		-khtml-user-select: none;
+		-moz-user-select: none;
+		-ms-user-select: none;
+		user-select: none;
+	}
+    </style>
+
+</head>
+<body style='font-family: Verdana, Arial, Helvetica, sans-serif;background-color:#AAAAAA'>
+	<div  style='font-size : 44pt;'>
+		<a href='index.html'>На главную</a>
+		</br>
+		<span class='tableTitle' id='groupControl' onclick='getTable(this.id)'>&nbsp;Управление группами&nbsp;</span>
+		</br>
+		<span class='tableTitle' id='archersControl' onclick='getTable(this.id)'>&nbsp;Участники по алфавиту&nbsp;</span>
+	</div>
+	
+	</br>
+	
+	<div><table border=0 cellpadding=5' id='ResultTable'></div>
+	
+	<script type="text/javascript" src="const.js"></script>
+	<script type="text/javascript" src="srAdmin.js"></script>
+	
+	<!--div  style='font-size : 44pt;'>
+		<span class='button' id='addGroup' onclick='addGroup()'>Добавить группу</span>
+	</div-->
+	<script>
+	let currTable = ''
+	///getTable('abcTable')
+	
+	function getTable(tableId){
+		if(currTable == tableId) return;
+		currTable = tableId;
+		wsRequest('adminControl', tableId);
+		let titles = document.getElementsByClassName('tableTitle');
+		for(let i = 0; i < titles.length; i++){
+			titles[i].style.backgroundColor = '#AAAAAA'
+		}
+		document.getElementById(tableId).style.backgroundColor = "#FFFFDD";
+	}
+	function addGroup(){
+		let groupName = prompt('Введите номер группы');
+		if(groupName == null || groupName == '') return;
+		wsRequest({'addGroup':groupName});
+	}
+	</script> 
+</body>
+</html>

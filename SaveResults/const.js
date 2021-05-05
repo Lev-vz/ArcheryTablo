@@ -1,4 +1,4 @@
-const Q_TARGET = 24;
+const Q_TARGET = 12;
 const Q_ARROW = 3;
 const ALL_READY = 'МОЖНО СТРЕЛЯТЬ'
 const GROUP_READY = 'НЕ ВСЕ ГОТОВЫ'
