@@ -8,8 +8,8 @@ let timeoutId = null;
 setWebSocketClient();
 
 function setWebSocketClient(){
-	if(timeoutId) clearTimeout(timeoutId);
-	socket = new WebSocket('ws://'+ip+':3001');// создать подключение
+	//if(timeoutId) clearTimeout(timeoutId);
+	socket = new WebSocket('ws://'+ip+':3003');// создать подключение
 
 	socket.onmessage = function(event) {// обработчик входящих сообщений
 		if(registration(event.data, socket)) return;
@@ -202,16 +202,16 @@ function setWebSocketClient(){
 
 	socket.onclose = function(event) {
 		//alert('No connect with WebSocketServer');
-		timeoutId = setTimeout(setWebSocketClient, 3000); //Если было отключение сервера, клиент раз в ... секунд пытается подключиться снова
+		//timeoutId = setTimeout(setWebSocketClient, 3000); //Если было отключение сервера, клиент раз в ... секунд пытается подключиться снова
 	};
 
-	//socket.onerror = function(error) {alert(`[error] ${error.message}`);};
+	socket.onerror = function(error) {alert(`[error] ${error.message}`);};
 }
 
-function wsRequest(data) {// показать сообщение в div#subscribe
+function wsRequest(data) {
 	if(!socket) return;
 	let obj = {};
-	obj['func'] = 'getTable';
+	obj['func'] = 'getResults';
 	obj['data'] = data;
 	socket.send(JSON.stringify(obj));
 }
@@ -219,9 +219,9 @@ function wsRequest(data) {// показать сообщение в div#subscrib
 function registration(message, socket){
 	if(message=='Hi, client!'){
 		let obj = {};
-		obj['func'] = 'Result table';
+		obj['func'] = 'All results table';
 		socket.send(JSON.stringify(obj));
-		getTable('abcTable');
+		getTable(currTable);
 		return true;
 	}
 	return false;

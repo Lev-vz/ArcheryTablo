@@ -208,7 +208,7 @@ function setWebSocketClient(){
 	//socket.onerror = function(error) {alert(`[error] ${error.message}`);};
 }
 
-function wsRequest(data) {// показать сообщение в div#subscribe
+function wsRequest(data) {
 	if(!socket) return;
 	let obj = {};
 	obj['func'] = 'getTable';

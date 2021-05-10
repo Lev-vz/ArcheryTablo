@@ -1,0 +1,7 @@
+{
+"Q_TARGET" : 12,
+"Q_ARROW" : 3,
+"ALL_READY" : "МОЖНО СТРЕЛЯТЬ",
+"GROUP_READY" : "НЕ ВСЕ ГОТОВЫ",
+"GROUP_NOT_READY" : "ГРУППА НЕ ГОТОВА",
+}

@@ -216,7 +216,7 @@
 		if(confirm('Вы уверены, что хотите вернуться на предыдущую мишень?')){
 			let request = {};
 			request['group'] = document.getElementById('group').innerHTML;
-			wsRequest(PREV_TARGET,request);
+			wsRequest('prevTarget',request);
 			row = 100;
 			arrow = 100;
 			setPoints(row + "" + arrow);
@@ -234,7 +234,7 @@
 		}
 		let request = {};
 		request['group'] = document.getElementById('group').innerHTML;
-		wsRequest(NEXT_TARGET,request);
+		wsRequest('nextTarget');
 		row = 1;
 		arrow = 1;
 		setPoints(row + "" + arrow);

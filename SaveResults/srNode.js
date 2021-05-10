@@ -1,4 +1,23 @@
-const cnst = require("./const");
+const tls = require("./toolsNode");
+const fs = require("fs");
+/*
+module.exports.saveInFile = function(fileName, obj){
+	try{															//записываем новые данные в файл на случай краха
+		fs.writeFileSync(fileName, JSON.stringify(obj), 'utf8');
+	}catch(err){
+		console.log('Ошибка записи в файл ' + fileName,err);
+	}
+}
+
+module.exports.uploadFromFile = function(fileName){
+	try{															//записываем новые данные в файл на случай краха
+		let obj = JSON.parse(fs.readFileSync(fileName, 'utf8'));
+		return obj;
+	}catch(err){
+		return null;
+	}
+}
+*/
 
 module.exports.isAllReady = function(groupInfo, clientId, setReady){
 	let ready = true;
@@ -6,21 +25,20 @@ module.exports.isAllReady = function(groupInfo, clientId, setReady){
 		//console.log('groupInfo['+k+']["ready"] = ' + groupInfo[k]["ready"]);//---------------------------------------------checkOut-----------------------------------------------
 		if(setReady && groupInfo[k]["clientId"] == clientId) groupInfo[k]["ready"] = true;
 		ready = ready && groupInfo[k]["ready"];
-		//console.log('ready = ' + ready);//---------------------------------------------checkOut-----------------------------------------------
 	}
 	return ready;
 }
 
-module.exports.getGroupInfo = function(groupInfo, archers, clientId, targets, resp){ //
+module.exports.getGroupInfo = function(groupInfo, archers, clientId, targets, sets, resp){ //
 	let k = "";
 	for(k in groupInfo){
 		if(groupInfo[k]["clientId"] == clientId){
 			resp['group'] = k;
 			resp['target'] = groupInfo[k]["currTarget"];
 			resp['targetType'] = targets[groupInfo[k]["currTarget"]-1];
-			if(module.exports.isAllReady(groupInfo, clientId, false)) resp['ready'] = cnst.ALL_READY;
-			else if(groupInfo[k]["ready"])           resp['ready'] = cnst.GROUP_READY;
-			else                                     resp['ready'] = cnst.GROUP_NOT_READY;
+			if(module.exports.isAllReady(groupInfo, clientId, false)) resp['ready'] = sets.cnst.ALL_READY;
+			else if(groupInfo[k]["ready"])           				  resp['ready'] = sets.cnst.GROUP_READY;
+			else                                     				  resp['ready'] = sets.cnst.GROUP_NOT_READY;
 			
 			break;
 		}
@@ -67,7 +85,7 @@ module.exports.getPointsInfo = function(archers, name, target, targetType, row, 
 	}
 	resp['integ'+row] = summ;
 }
-
+/*
 module.exports.checkPass = function(arg, userId, groups, fs, path){ //проверка допуска запрса
 	if(arg.toLowerCase().indexOf('/groupcontrol') == 0){
 		if(arg.length == 13 || arg.toLowerCase().substring(13) == '.html'){
@@ -95,11 +113,12 @@ module.exports.checkPass = function(arg, userId, groups, fs, path){ //прове
 			return '/wrongPass.html';
 		}
 	}
-	else if(!(arg.includes('.html') || arg.includes('.htm') || arg.includes('.js') || arg.includes('.ico') || arg.includes('.jpg') || arg.includes('.pnd'))) return arg + ".html";
+	else if(!(arg.includes('.html') || arg.includes('.htm') || arg.includes('.js') ||
+				arg.includes('.ico') || arg.includes('.jpg') || arg.includes('.png'))) return arg + ".html";
 	
 	return arg;
 }
-
+*/
 module.exports.saveGroupInfo = function(groupInfo, key, userId, fs, path){ 
 	if(key in groupInfo){
 		for(let k in groupInfo){
@@ -147,7 +166,53 @@ module.exports.getTable = function(groupInfo, archers, resp){
 	//console.log('resp='+JSON.stringify(resp));//---------------------------------------------checkOut-----------------------------------------------
 }
 
-function getNumbersForTable(groupInfo, archers, i, key, start, resp){
+module.exports.getGroupTable = function(groupInfo, resp){
+	//console.log('archers='+JSON.stringify(archers));//---------------------------------------------checkOut-----------------------------------------------
+	resp['table']=[]
+	let i = 0;
+	for(let key in groupInfo){
+		resp.table[i] = [];
+		let j = 1;
+		resp.table[i][0] = key;
+		for(let key2 in groupInfo[key]){
+			resp.table[i][j++] = groupInfo[key][key2];
+		}
+		i++;
+	}
+	//console.log('resp='+JSON.stringify(resp));//---------------------------------------------checkOut-----------------------------------------------
+}
+
+module.exports.getResalts = function(groupInfo, round, archers, setting, resp){
+	//console.log('archers='+JSON.stringify(archers));//---------------------------------------------checkOut-----------------------------------------------
+	resp['table']=[]
+	let i = 0;
+	for(let key in archers){
+		resp.table[i] = [];
+		let pos = 0;
+		resp.table[i][pos++] = key;
+		resp.table[i][pos++] = archers[key]["group"];
+		resp.table[i][pos++] = archers[key]["index"];
+		resp.table[i][pos++] = archers[key]["class"];
+		resp.table[i][pos++] = archers[key].club;
+		let summ = 0;
+		for(let i = 0; i < sets.qRounds; i++){
+			let file = setting['Round'][i] + '/' + key + '.pnt'
+			let roundData = module.exports.uploadFromFile(file);
+			if(roundData != null && 'summ' in roundData){
+				summ += roundData.summ;
+			}
+		}
+		resp.table[i][pos++] = summ;
+		for(let j = 0; j < archers[key].arr.length; j++){
+			resp.table[i][j+pos] = '';
+		}
+		getNumbersForTable(groupInfo, archers, i, key, pos, sets, resp)
+		i++;
+	}
+
+}
+
+function getNumbersForTable(groupInfo, archers, i, key, start, sets, resp){
 	//console.log('archers['+key+']["group"]='+archers[key].group + ', groupInfo[archers['+key+'].group].currTarget='+groupInfo[archers[key].group].currTarget);//---------------------------------------------checkOut-----------------------------------------------
 	let curr = groupInfo[archers[key].group].currTarget;
 	let first = groupInfo[archers[key].group].firstTarget;
@@ -184,4 +249,22 @@ function getNumbersForTable(groupInfo, archers, i, key, start, resp){
 	resp.table[i][start + cnst.Q_TARGET] = summ;
 	if(qTarg > 0) resp.table[i][start+1 + cnst.Q_TARGET] = (summ/qTarg/2).toFixed(2);
 	else resp.table[i][start+1 + cnst.Q_TARGET] = 0;
+}
+
+module.exports.getOtherRoundSumm = function(round, archer, setting){
+	for(let i = 0; i < setting.qRounds; i++){
+		if(i == round) continue;
+		let archerData = tls.uploadFromFile(setting.Round[i] + '/' + archer +'.pnt');
+		if(archerData!=null){
+			//console.log('archerData='+JSON.stringify(archerData));//---------------------------------------------checkOut-----------------------------------------------
+			let summ = 0;
+			for(let j = 0; j < archerData.arr.length; j++){
+				for(let k = 0; k < archerData.arr[j].length; k++){
+					summ += archerData.arr[j][k];
+				}
+			}
+			return summ;
+		}else 
+			return 0;
+	}
 }

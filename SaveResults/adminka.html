@@ -1,0 +1,70 @@
+<!DOCTYPE html/>
+<html>
+<head>
+	<title>Администрация соревнования</title>
+	<meta charset="utf-8">
+	<link rel="stylesheet" type="text/css" href="tableStyle.css">
+</head>
+<body style='font-family: Verdana, Arial, Helvetica, sans-serif;background-color:#AAAAAA'>
+	<div class='nextLine'><a href='index.html'>На главную</a></div>
+	<div class='nextLine'>
+		<span class='button' id='groupControl' onclick='getTable(this.id)'>&nbsp;Группы&nbsp;</span>
+	</div>
+	<div class='nextLine'>
+		<span class='button' id='archersControlClass' onclick='getTable(this.id)'>&nbsp;Участники по классам&nbsp;</span>
+	</div>
+	<div class='nextLine'>
+		<span class='button' id='archersControlGroup' onclick='getTable(this.id)'>&nbsp;Участники по группам&nbsp;</span>
+	</div>
+	<div class='nextLine'>
+		<div class='border'>
+			<span class='button' id='set_tournamentName' onclick='setVar(this.id)'>&nbsp;Название турнира&nbsp;</span>
+			<span class='info' id='qTargets'>12</span>
+		</div>
+		<div class='border'>
+			<span class='button' id='set_qTargets' onclick='setVar(this.id)'>&nbsp;Количество мишеней на кругу&nbsp;</span>
+			<span class='info' id='qTargets'>12</span>
+		</div>
+		<div class='border'>
+			<span class='button' id='set_typeTargets' onclick='setVar(this.id)'>&nbsp;Тип мишеней&nbsp;</span>
+			<span class='info' id='typeTargets'>3D</span>
+		</div>
+		<div class='border'>
+			<span class='button' id='set_roundNumb' onclick='setVar(this.id)'>&nbsp;Текущий круг&nbsp;</span>
+			<span class='info' id='roundNumb'>1</span>
+		</div>
+	</div>
+	
+	
+	<div><table border=0 cellpadding=5' id='ResultTable'></div>
+	
+	<script type="text/javascript" src="const.js"></script>
+	<script type="text/javascript" src="srAdmin.js"></script>
+	
+	<!--div  style='font-size : 44pt;'>
+		<span class='button' id='addGroup' onclick='addGroup()'>Добавить группу</span>
+	</div-->
+	<script>
+		let currTable = ''
+		
+		function getTable(tableId){
+			if(currTable == tableId) return;
+			currTable = tableId;
+			wsRequest('adminControl', tableId);
+		}
+		
+		function setVar(varId){
+			let varRusName = document.getElementById(varId).innerHTML;
+			let val = prompt('Введите новое значение для настройки ' + varRusName);
+			if(val == null || val == '') return;
+			wsRequest('setSettingVar', {'name':this.id.substring(4), 'val':val})
+		}
+		
+		function addGroup(){
+			let groupName = prompt('Введите номер группы');
+			if(groupName == null || groupName == '') return;
+			wsRequest('addGroup',groupName);
+		}
+	</script> 
+</body>
+</html>
