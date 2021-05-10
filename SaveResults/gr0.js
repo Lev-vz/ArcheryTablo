@@ -3,14 +3,14 @@ const WebSocketServer = new require('ws');
 const fs = require("fs");
 const cookieParser = require('cookie-parser');
 
-const srn = require("./srNode");
+const grn = require("./grNode");
 const tls = require("./toolsNode");
 
 //---------------------------------- Настройки текущего турнира -----------------------------------------
 let settingFileName = 'tournamentSetting.json'
 let setting = tls.uploadFromFile(settingFileName);
 if(setting == null){
-	console.log('Не удалось прочитать файл настроек турника')'
+	console.log('Не удалось прочитать файл настроек турнира')
 	return;
 }
 //-----------------------------------------------------------------------------------------------------------------
@@ -19,17 +19,17 @@ for(let i = 0; i < setting.qRounds; i++){
 	allRoundArchers[i] = tls.uploadFromFile(setting['Round'][i] + '/archList.txt');
 	for(let key in allRoundArchers[i]){
 		let archerData = tls.uploadFromFile(setting.currRoundPath + key +'.pnt');
-		if(archerData!=null){
-			//console.log('archerData='+JSON.stringify(archerData));//---------------------------------------------checkOut-----------------------------------------------
+		console.log('archerData['+key+']['+i+']='+JSON.stringify(archerData));//---------------------------------------------checkOut-----------------------------------------------
+		if(archerData){
 			allRoundArchers[i][key]['summ'] = archerData.summ;
 			allRoundArchers[i][key]['arr'] = archerData.arr;
 		}else{
-			archers[key]['summ'] = 0;
-			archers[key]['arr'] = [];
-			for(let i=0; i<setting.cnst.Q_TARGET; i++){
-				archers[key]['arr'][i]=[];
+			allRoundArchers[i][key]['summ'] = 0;
+			allRoundArchers[i][key]['arr'] = [];
+			for(let k=0; k<setting.cnst.Q_TARGET; k++){
+				allRoundArchers[i][key]['arr'][k]=[];
 				for(let j=0; j<setting.cnst.Q_ARROW; j++){
-					archers[key]['arr'][i][j] = 0;
+					allRoundArchers[i][key]['arr'][k][j] = 0;
 				}
 			}
 		}
@@ -43,12 +43,14 @@ for(let i = 0; i < setting.qRounds; i++){
 			if((key in allRoundArchers[j]) && ('summ' in allRoundArchers[j][key])){
 				summ += allRoundArchers[j][key].summ;
 			}
-			allRoundArchers[i][key]['allRoundSumm'] = archerData.summ;
-			allRoundArchers[i][key]['allRoundAverageArrow'] = archerData.summ / (setting.cnst.Q_TARGET * setting.cnst.Q_ARROW);
+			allRoundArchers[i][key]['allRoundSumm'] = summ;
+			allRoundArchers[i][key]['allRoundAverageArrow'] = summ / (setting.cnst.Q_TARGET * setting.cnst.Q_ARROW);
 			
 		}
 	}
 }
+
+let shortTable = grn.getShortTable(allRoundArchers, setting.cnst.Q_TARGET * setting.cnst.Q_ARROW);
 //-------------------------------------------------------------------------------------------------------------------
 //--------------------------------------- Запуск обычного HTTP Server -----------------------------------------------
 const exp = express();
@@ -64,11 +66,18 @@ exp.get("/favicon.ico", function(request, response) {
 });
 
 exp.get("/*", function (request, response) {
+	let arg = request.url;
 	if(request.url.includes('admin')){
 		response.sendFile(__dirname + '/wrongPass.html');
 		return;
 	}
-	let arg = tls.checkPass(request.url, request.cookies['userArcherTournamentId'], groupInfo, fs, setting['currRoundPath']);
+	if(request.url.includes('groupControl')){
+		response.sendFile(__dirname + '/wrongPass.html');
+		return;
+	}
+	else if(!(arg.includes('.html') || arg.includes('.htm') || arg.includes('.js') || arg.includes('.css') ||
+			arg.includes('.ico') || arg.includes('.jpg') || arg.includes('.png'))) return arg + ".html";
+
 	//console.log('arg = ' + arg);//---------------------------------------------checkOut-----------------------------------------------
     response.sendFile(__dirname + arg);
 });
@@ -89,20 +98,21 @@ webSocketServer.on('connection', function(ws) {
 		let obj = JSON.parse(msg);
 		try{
 			switch(obj.func){
+				/*
 				case 'getFullResult' :
 				{
-					ws.send(JSON.stringify(allRoundArchers));
+					ws.send(JSON.stringify({'dataType':'allRound','data':allRoundArchers));
+				}
+				break;
+				*/
+				case 'getShortResult' :
+				{
+					ws.send(JSON.stringify({'dataType':'shortData','data':shortTable}));
 				}
 				break;
 				case 'getRoundResult' :
 				{
-					ws.send(JSON.stringify(allRoundArchers[obj.data]));
-				}
-				break;
-				case 'getShortResult' :
-				{
-					let resp = grn.getShortTable(allRoundArchers);
-					if(resp != null) ws.send(JSON.stringify(resp));
+					ws.send(JSON.stringify({'dataType':obj.data,'data':allRoundArchers[obj.data]}));
 				}
 				break;
 			}

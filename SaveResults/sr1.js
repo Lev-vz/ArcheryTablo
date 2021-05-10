@@ -14,6 +14,7 @@ if(setting == null){
 	setting['cnst'] = {};
 	setting.cnst['Q_TARGET'] = 24;
 	setting.cnst['Q_ARROW'] = 2;
+	setting.cnst['Q_ROUNDS'] = 4;
 	setting.cnst['ALL_READY'] = 'МОЖНО СТРЕЛЯТЬ'
 	setting.cnst['GROUP_READY'] = 'НЕ ВСЕ ГОТОВЫ'
 	setting.cnst['GROUP_NOT_READY'] = 'ГРУППА НЕ ГОТОВА'
@@ -29,9 +30,9 @@ if(setting == null){
 	  console.error(err)
 	}
 	
-	setting['qRounds'] = 4;
+	//setting['qRounds'] = 4;
 	setting['Round'] = []
-	for(let i = 0; i < setting.qRounds; i++){
+	for(let i = 0; i < setting.cnst.Q_ROUNDS; i++){
 		setting['Round'][i] = tournamentPath + '/round' + (i+1);
 		try {
 		  if (!fs.existsSync(setting.Round[i])){

@@ -12,48 +12,61 @@ function setWebSocketClient(){
 	socket = new WebSocket('ws://'+ip+':3003');// создать подключение
 
 	socket.onmessage = function(event) {// обработчик входящих сообщений
-		if(registration(event.data, socket)) return;
+		//if(registration(event.data, socket)) return;
 		//----- если это была не регмстрация ws-клиента - начинаем обработку данных
 		try{
 			let obj = JSON.parse(event.data);
-			if('table' in obj){
+			if('dataType' in obj){
 				let showTable = document.getElementById('ResultTable')
 				if(!showTable) return;
-				switch(currTable){
-					case 'abcTable':
+				switch(obj.dataType){
+					case 'shortData':
 					showTable.innerHTML = '';
 					{
-						let keyArr = []
-						for(let i = 0; i < obj.table.length; i++){
-							keyArr.push({'npp':i, 'txt':obj.table[i][0]});
+						let keyArr = [];
+						let i = 0;
+						for(key in obj.data)
+							keyArr.push({'key':key, 'txt':obj.data.class, 'num':obj.data.allRoundSumm});
 						}
 						keyArr.sort(compareTxt);
+						keyArr.sort(compareNum90);
+						//------------- Заголовки --------------------
 						// Insert a row in the table at row index 0
 						let newRow = showTable.insertRow(0);
 						newRow.style.backgroundColor = '#444444';
 						newRow.style.color = '#FFFFFF';
 						newRow.insertCell().innerHTML = '№';
 						newRow.insertCell().innerHTML = 'Имя';
-						newRow.insertCell().innerHTML = 'Класс/Дивизион';
-						newRow.insertCell().innerHTML = 'Клуб';
-						newRow.insertCell().innerHTML = 'Группа';
-						newRow.insertCell().innerHTML = 'Индекс';
+						newRow.insertCell().innerHTML = 'Гр./</br>инд';
+						let tmp;
+						for(let i = 0; i < Q_ROUNDS; i++){
+							tmp = newRow.insertCell()
+							tmp.width = 20;
+							tmp.innerHTML = "Круг</br>№ "+ (i+1);
+						}
+						newRow.insertCell().innerHTML = 'Сумма за</br>все круги';
+						newRow.insertCell().innerHTML = 'Средняя</br>стрела';
+						let cassDiv = '';
+						//-------- заполнение таблицы -------------------
 						for(let i = 0; i < keyArr.length; i++){
 							let newRow = showTable.insertRow();
 							newRow.style.backgroundColor = (i%2)? '#EEEEEE' : 'FFFFDD';
 							newRow.insertCell().innerHTML = i + 1;
 							
 							let name = newRow.insertCell()
-							name.innerHTML = obj.table[keyArr[i].npp][0];//имя
+							name.innerHTML = keyArr[i];//имя
 							name.style.textAlign = 'left';//
 							
-							newRow.insertCell().innerHTML = obj.table[keyArr[i].npp][3];//класс
-							newRow.insertCell().innerHTML = obj.table[keyArr[i].npp][4];//клуб
-							newRow.insertCell().innerHTML = obj.table[keyArr[i].npp][1];//группа
-							newRow.insertCell().innerHTML = obj.table[keyArr[i].npp][2];//индекс
+							newRow.insertCell().innerHTML = obj.data[keyArr[i]].group + obj.data[keyArr[i]].index;//класс
+							for(let i = 0; i < obj.data[keyArr[i]].summs.length; i++){
+								newRow.insertCell().innerHTML = obj.data[keyArr[i]].summs[i];
+							}
+							newRow.insertCell().innerHTML = obj.data[keyArr[i]].fullSumm
+							newRow.insertCell().innerHTML = obj.data[keyArr[i]].averageArrow
 						}
 					}
 					break;
+				/*
 					case 'groupTable':
 					showTable.innerHTML = '';
 					{
@@ -196,6 +209,7 @@ function setWebSocketClient(){
 					}
 					break;
 				}
+				*/
 			}
 		}catch(err){};
 	};
@@ -215,7 +229,7 @@ function wsRequest(data) {
 	obj['data'] = data;
 	socket.send(JSON.stringify(obj));
 }
-
+/*
 function registration(message, socket){
 	if(message=='Hi, client!'){
 		let obj = {};
@@ -226,24 +240,4 @@ function registration(message, socket){
 	}
 	return false;
 }
-
-function rgb2hex(r, g, b){
-	return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
-}
-
-function compareTxt(a, b) {
-  if (a.txt < b.txt) return -1;
-  if (a.txt > b.txt) return 1;
-  if (a.txt == b.txt) return 0;
-}
-
-function compareNum(a, b) {
-  if (a.num < b.num) return -1;
-  if (a.num > b.num) return 1;
-  if (a.num == b.num) return 0;
-}
-function compareNum90(a, b) {
-  if (a.num > b.num) return -1;
-  if (a.num < b.num) return 1;
-  if (a.num == b.num) return 0;
-}
+*/
