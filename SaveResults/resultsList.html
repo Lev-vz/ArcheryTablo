@@ -1,0 +1,59 @@
+<!DOCTYPE html/>
+<html>
+<head>
+	<title>Результаты</title>
+	<meta charset="utf-8">
+	<link rel="stylesheet" type="text/css" href="tableStyle.css">
+</head>
+<body style='font-family: Verdana, Arial, Helvetica, sans-serif;background-color:#AAAAAA'>
+	<div class='nextLine'>
+		<a href='index.html'>На главную</a>
+	</div>
+	<div class='nextLine'>
+		<span class='tableTitle' id='groupTable' onclick='getTable(this.id)'>&nbsp;Результаты по группам&nbsp;</span>
+	</div>
+	<div class='nextLine'>
+		<span class='tableTitle' id='classTable' onclick='getTable(this.id)'>&nbsp;Результаты по классам&nbsp;</span>
+	</div>
+	<div class='nextLine'>
+		<div class='border'>
+			<span class='tableTitle'>&nbsp;Круг №&nbsp;</span>
+			<div class='button' style='background-color:#FFFFFF;' id='roundNumb' onclick='setRound()'>1</div>
+		</div>
+		<span id='roundInput'></span>
+	</div>
+	<!--input type="number" size="1" name="num" min="1" max="10" value="1"-->
+	<script type="text/javascript" src="constants.js"></script>
+	<script type="text/javascript" src="srResults.js"></script>
+	
+	<script>
+	let currTable = ''
+	///getTable('abcTable')
+	let round = 1;
+	
+	function setRound(){
+		let inp = document.getElementById('roundInput');
+		let str = ''
+		for(let i=1; i<=4; i++){
+			str += "<div class='button' onclick='setThisRound("+i+")'>"+i+"</div>"
+		}
+		inp.innerHTML = str;
+	}
+	function setThisRound(x){
+		document.getElementById('roundNumb').innerHTML = ''+x;
+		document.getElementById('roundInput').innerHTML = '';
+	}
+	
+	function getTable(tableId){
+		if(currTable == tableId) return;
+		currTable = tableId;
+		wsRequest(round);
+		let titles = document.getElementsByClassName('tableTitle');
+		for(let i = 0; i < titles.length; i++){
+			titles[i].style.backgroundColor = '#AAAAAA'
+		}
+		document.getElementById(tableId).style.backgroundColor = "#FFFFDD";
+	}
+	</script> 
+</body>
+</html>
