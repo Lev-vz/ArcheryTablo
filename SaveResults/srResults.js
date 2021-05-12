@@ -58,8 +58,8 @@ function setWebSocketClient(){
 							name.style.textAlign = 'left';//
 							
 							newRow.insertCell().innerHTML = obj.data[keyArr[i].key].group + obj.data[keyArr[i].key].index;//класс
-							for(let i = 0; i < obj.data[keyArr[i].key].summs.length; i++){
-								newRow.insertCell().innerHTML = obj.data[keyArr[i].key].summs[i];
+							for(let j = 0; j < obj.data[keyArr[i].key].summs.length; j++){
+								newRow.insertCell().innerHTML = obj.data[keyArr[i].key].summs[j];
 							}
 							newRow.insertCell().innerHTML = obj.data[keyArr[i].key].fullSumm
 							newRow.insertCell().innerHTML = obj.data[keyArr[i].key].averageArrow

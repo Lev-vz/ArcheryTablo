@@ -18,11 +18,11 @@ let allRoundArchers = []
 for(let i = 0; i < setting.qRounds; i++){
 	allRoundArchers[i] = tls.uploadFromFile(setting['Round'][i] + '/archList.txt');
 	for(let key in allRoundArchers[i]){
-		let archerData = tls.uploadFromFile(setting.currRoundPath + key +'.pnt');
-		//console.log('archerData['+key+']['+i+']='+JSON.stringify(archerData));//---------------------------------------------checkOut-----------------------------------------------
+		let archerData = tls.uploadFromFile(setting['Round'][i] + '/' + key +'.pnt');
 		if(archerData){
 			allRoundArchers[i][key]['summ'] = archerData.summ;
 			allRoundArchers[i][key]['arr'] = archerData.arr;
+			//console.log('summ['+key+']['+i+']='+allRoundArchers[i][key]['summ']);//JSON.stringify());//---------------------------------------------checkOut-----------------------------------------------
 		}else{
 			allRoundArchers[i][key]['summ'] = 0;
 			allRoundArchers[i][key]['arr'] = [];
@@ -35,6 +35,7 @@ for(let i = 0; i < setting.qRounds; i++){
 		}
 	}
 }
+/*
 for(let i = 0; i < setting.qRounds; i++){
 	allRoundArchers[i] = tls.uploadFromFile(setting['Round'][i] + '/archList.txt');
 	for(let key in allRoundArchers[i]){
@@ -49,7 +50,7 @@ for(let i = 0; i < setting.qRounds; i++){
 		}
 	}
 }
-
+*/
 let shortTable = grn.getShortTable(allRoundArchers, setting.cnst.Q_TARGET * setting.cnst.Q_ARROW);
 //-------------------------------------------------------------------------------------------------------------------
 //--------------------------------------- Запуск обычного HTTP Server -----------------------------------------------
