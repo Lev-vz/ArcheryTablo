@@ -25,7 +25,7 @@ function setWebSocketClient(){
 					{
 						let keyArr = [];
 						let i = 0;
-						for(key in obj.data)
+						for(key in obj.data){
 							keyArr.push({'key':key, 'txt':obj.data.class, 'num':obj.data.allRoundSumm});
 						}
 						keyArr.sort(compareTxt);
@@ -54,15 +54,15 @@ function setWebSocketClient(){
 							newRow.insertCell().innerHTML = i + 1;
 							
 							let name = newRow.insertCell()
-							name.innerHTML = keyArr[i];//имя
+							name.innerHTML = keyArr[i].key;//имя
 							name.style.textAlign = 'left';//
 							
-							newRow.insertCell().innerHTML = obj.data[keyArr[i]].group + obj.data[keyArr[i]].index;//класс
-							for(let i = 0; i < obj.data[keyArr[i]].summs.length; i++){
-								newRow.insertCell().innerHTML = obj.data[keyArr[i]].summs[i];
+							newRow.insertCell().innerHTML = obj.data[keyArr[i].key].group + obj.data[keyArr[i].key].index;//класс
+							for(let i = 0; i < obj.data[keyArr[i].key].summs.length; i++){
+								newRow.insertCell().innerHTML = obj.data[keyArr[i].key].summs[i];
 							}
-							newRow.insertCell().innerHTML = obj.data[keyArr[i]].fullSumm
-							newRow.insertCell().innerHTML = obj.data[keyArr[i]].averageArrow
+							newRow.insertCell().innerHTML = obj.data[keyArr[i].key].fullSumm
+							newRow.insertCell().innerHTML = obj.data[keyArr[i].key].averageArrow
 						}
 					}
 					break;
@@ -208,8 +208,8 @@ function setWebSocketClient(){
 						}
 					}
 					break;
-				}
 				*/
+				}
 			}
 		}catch(err){};
 	};
@@ -222,10 +222,10 @@ function setWebSocketClient(){
 	socket.onerror = function(error) {alert(`[error] ${error.message}`);};
 }
 
-function wsRequest(data) {
+function wsRequest(func, data) {
 	if(!socket) return;
 	let obj = {};
-	obj['func'] = 'getResults';
+	obj['func'] = func;
 	obj['data'] = data;
 	socket.send(JSON.stringify(obj));
 }

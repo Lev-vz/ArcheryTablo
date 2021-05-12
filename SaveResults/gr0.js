@@ -19,7 +19,7 @@ for(let i = 0; i < setting.qRounds; i++){
 	allRoundArchers[i] = tls.uploadFromFile(setting['Round'][i] + '/archList.txt');
 	for(let key in allRoundArchers[i]){
 		let archerData = tls.uploadFromFile(setting.currRoundPath + key +'.pnt');
-		console.log('archerData['+key+']['+i+']='+JSON.stringify(archerData));//---------------------------------------------checkOut-----------------------------------------------
+		//console.log('archerData['+key+']['+i+']='+JSON.stringify(archerData));//---------------------------------------------checkOut-----------------------------------------------
 		if(archerData){
 			allRoundArchers[i][key]['summ'] = archerData.summ;
 			allRoundArchers[i][key]['arr'] = archerData.arr;
@@ -124,15 +124,6 @@ webSocketServer.on('connection', function(ws) {
 	});
 
 	ws.on('close', function() {
-		if(clientID in clients){
-			delete clients[clientID];
-			console.log('3акрыто соединение c клиентом ' + clientID);
-		}
-		if(tabId in tables){
-			delete tables[tabId];
-			console.log('3акрыто соединение c таблицей ' + tabId);
-		}
-		
 	});
 
 });
