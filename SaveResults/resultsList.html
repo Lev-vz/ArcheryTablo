@@ -22,9 +22,15 @@
 		</div>
 		<span id='roundInput'></span>
 	</div>
+	<div>
+		<table border=0 cellpadding=5' id='ResultTable'>
+		</table>
+	</div>
+
 	<!--input type="number" size="1" name="num" min="1" max="10" value="1"-->
 	<script type="text/javascript" src="constants.js"></script>
 	<script type="text/javascript" src="srResults.js"></script>
+	<script type="text/javascript" src="clientTools.js"></script>
 	
 	<script>
 	let currTable = ''
@@ -47,7 +53,7 @@
 	function getTable(tableId){
 		if(currTable == tableId) return;
 		currTable = tableId;
-		wsRequest(round);
+		wsRequest('getShortResult',tableId);
 		let titles = document.getElementsByClassName('tableTitle');
 		for(let i = 0; i < titles.length; i++){
 			titles[i].style.backgroundColor = '#AAAAAA'
