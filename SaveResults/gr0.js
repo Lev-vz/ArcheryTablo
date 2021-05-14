@@ -51,7 +51,7 @@ for(let i = 0; i < setting.qRounds; i++){
 	}
 }
 */
-let shortTable = grn.getShortTable(allRoundArchers, setting.cnst.Q_TARGET * setting.cnst.Q_ARROW);
+let shortTable = grn.getShortTable(allRoundArchers, setting.cnst.Q_TARGET * setting.cnst.Q_ARROW * setting.cnst.Q_ROUNDS);
 //-------------------------------------------------------------------------------------------------------------------
 //--------------------------------------- Запуск обычного HTTP Server -----------------------------------------------
 const exp = express();

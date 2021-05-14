@@ -10,10 +10,10 @@
 		<a href='index.html'>На главную</a>
 	</div>
 	<div class='nextLine'>
-		<span class='tableTitle' id='groupTable' onclick='getTable(this.id)'>&nbsp;Результаты по группам&nbsp;</span>
+		<span class='tableTitle' id='groupTable' onclick='getTable(this.id, "getShortResult")'>&nbsp;Результаты по группам&nbsp;</span>
 	</div>
 	<div class='nextLine'>
-		<span class='tableTitle' id='classTable' onclick='getTable(this.id)'>&nbsp;Результаты по классам&nbsp;</span>
+		<span class='tableTitle' id='classTable' onclick='getTable(this.id, "getRoundResult")'>&nbsp;Результаты по классам&nbsp;</span>
 	</div>
 	<div class='nextLine'>
 		<div class='border'>
@@ -44,16 +44,18 @@
 			str += "<div class='button' onclick='setThisRound("+i+")'>"+i+"</div>"
 		}
 		inp.innerHTML = str;
+		
 	}
 	function setThisRound(x){
 		document.getElementById('roundNumb').innerHTML = ''+x;
 		document.getElementById('roundInput').innerHTML = '';
+		round = x;
 	}
 	
-	function getTable(tableId){
+	function getTable(tableId, func){
 		if(currTable == tableId) return;
 		currTable = tableId;
-		wsRequest('getShortResult',tableId);
+		wsRequest(func,round-1);
 		let titles = document.getElementsByClassName('tableTitle');
 		for(let i = 0; i < titles.length; i++){
 			titles[i].style.backgroundColor = '#AAAAAA'

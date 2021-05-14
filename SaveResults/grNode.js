@@ -1,6 +1,6 @@
 module.exports.getShortTable = function(allRoundArchers, qArrows){
 	let ret = {};
-	console.log(JSON.stringify(allRoundArchers));////---------------------------------------------checkOut-----------------------------------------------
+	//console.log(JSON.stringify(allRoundArchers));////---------------------------------------------checkOut-----------------------------------------------
 	//console.log('qArrows=' + qArrows);////---------------------------------------------checkOut-----------------------------------------------
 	let qRound = allRoundArchers.length
 	for(let i = 0; i < qRound; i++){
@@ -27,7 +27,7 @@ module.exports.getShortTable = function(allRoundArchers, qArrows){
 		let x = 0;
 		for(let key in allRoundArchers[i]){
 			if((x++)> 4) break;
-			console.log('summ['+key+']['+i+']='+ret[key]["summs"][i]);//JSON.stringify());//---------------------------------------------checkOut-----------------------------------------------			
+			//console.log('summ['+key+']['+i+']='+ret[key]["summs"][i]);//JSON.stringify());//---------------------------------------------checkOut-----------------------------------------------			
 		}
 	}
 
