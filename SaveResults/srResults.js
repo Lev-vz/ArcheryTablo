@@ -58,85 +58,29 @@ function setWebSocketClient(){
 							name.style.textAlign = 'left';//
 							
 							newRow.insertCell().innerHTML = obj.data[keyArr[i].key].group + obj.data[keyArr[i].key].index;//класс
-							for(let i = 0; i < obj.data[keyArr[i].key].summs.length; i++){
-								newRow.insertCell().innerHTML = obj.data[keyArr[i].key].summs[i];
+							for(let j = 0; j < obj.data[keyArr[i].key].summs.length; j++){
+								newRow.insertCell().innerHTML = obj.data[keyArr[i].key].summs[j];
 							}
 							newRow.insertCell().innerHTML = obj.data[keyArr[i].key].fullSumm
 							newRow.insertCell().innerHTML = obj.data[keyArr[i].key].averageArrow
 						}
 					}
 					break;
-				/*
-					case 'groupTable':
+					default:
 					showTable.innerHTML = '';
 					{
-						let keyArr = []
-						for(let i = 0; i < obj.table.length; i++){
-							keyArr.push({'npp':i, 'txt': obj.table[i][1]+obj.table[i][2], 'num':parseInt(obj.table[i][1])});
+						let keyArr = [];
+						let i = 0;
+						for(key in obj.data){
+							keyArr.push({'key':key, 'txt':obj.data.class, 'num':obj.data.summ});
 						}
 						keyArr.sort(compareTxt);
-						keyArr.sort(compareNum);
-						let newRow = showTable.insertRow(0);
-						newRow.style.backgroundColor = '#444444';
-						newRow.style.color = '#FFFFFF';
-						//------------- Заголовки --------------------
-						newRow.insertCell().innerHTML = '№';
-						newRow.insertCell().innerHTML = 'Имя';
-						newRow.insertCell().innerHTML = 'Класс/Дивизион';
-						let tmp;
-						for(let i = 0; i < Q_TARGET; i++){
-							tmp = newRow.insertCell()
-							tmp.width = 20;
-							tmp.innerHTML = i+1
-						}
-						newRow.insertCell().innerHTML = 'Сумма';
-						newRow.insertCell().innerHTML = 'Средняя</br>стрела';
-						let group = '';
-						//-------- заполнение таблицы -------------------
-						for(let i = 0; i < keyArr.length; i++){
-							newRow = showTable.insertRow();
-							if(group != obj.table[keyArr[i].npp][1]){
-								group = obj.table[keyArr[i].npp][1];
-								
-								newRow.style.backgroundColor = '#888888';
-								newRow.style.color = '#FFFFDD';
-								
-								tmp = newRow.insertCell();
-								tmp.colSpan = Q_TARGET + 6;
-								tmp.innerHTML = 'Группа №' + group;
-								newRow = showTable.insertRow();
-							}
-							newRow.style.backgroundColor = (i%2)? '#EEEEEE' : '#FFFFDD';
-							newRow.insertCell().innerHTML = i + 1;
-							
-							let name = newRow.insertCell()
-							name.innerHTML = obj.table[keyArr[i].npp][0];
-							name.style.textAlign = 'left';//
-							
-							newRow.insertCell().innerHTML = obj.table[keyArr[i].npp][3];
-							for(let j = 0; j < Q_TARGET; j++){
-								tmp = newRow.insertCell()
-								//tmp.width = 20;
-								tmp.innerHTML = obj.table[keyArr[i].npp][j+5]
-							}
-							newRow.insertCell().innerHTML = obj.table[keyArr[i].npp][Q_TARGET + 5];
-							newRow.insertCell().innerHTML = obj.table[keyArr[i].npp][Q_TARGET + 6];
-						}
-					}
-					break;
-					case 'classTable':
-					showTable.innerHTML = '';
-					{
-						let keyArr = []
-						for(let i = 0; i < obj.table.length; i++){
-							keyArr.push({'npp':i, 'txt': obj.table[i][3], 'num':parseFloat(obj.table[i][Q_TARGET + 6])});
-						}
 						keyArr.sort(compareNum90);
-						keyArr.sort(compareTxt);
+						//------------- Заголовки --------------------
+						// Insert a row in the table at row index 0
 						let newRow = showTable.insertRow(0);
 						newRow.style.backgroundColor = '#444444';
 						newRow.style.color = '#FFFFFF';
-						//------------- Заголовки --------------------
 						newRow.insertCell().innerHTML = '№';
 						newRow.insertCell().innerHTML = 'Имя';
 						newRow.insertCell().innerHTML = 'Гр./</br>инд';
@@ -144,71 +88,35 @@ function setWebSocketClient(){
 						for(let i = 0; i < Q_TARGET; i++){
 							tmp = newRow.insertCell()
 							tmp.width = 20;
-							tmp.innerHTML = i+1
+							tmp.innerHTML = ""+ (i+1);
 						}
-						newRow.insertCell().innerHTML = 'Сумма';
+						newRow.insertCell().innerHTML = 'Сумма за</br>все круги';
 						newRow.insertCell().innerHTML = 'Средняя</br>стрела';
 						let cassDiv = '';
 						//-------- заполнение таблицы -------------------
-						let k = 1;
 						for(let i = 0; i < keyArr.length; i++){
-							newRow = showTable.insertRow();
-							if(cassDiv != obj.table[keyArr[i].npp][3]){
-								cassDiv = obj.table[keyArr[i].npp][3];
-								
-								newRow.style.backgroundColor = '#888888';
-								newRow.style.color = '#FFFFDD';
-								
-								tmp = newRow.insertCell();
-								tmp.colSpan = Q_TARGET + 6;
-								tmp.innerHTML = cassDiv;
-								newRow = showTable.insertRow();
-								k = 1;
-							}
-							newRow.style.backgroundColor = (k%2)? '#EEEEEE' : '#FFFFDD';
-							newRow.insertCell().innerHTML = k++;
+							let newRow = showTable.insertRow();
+							newRow.style.backgroundColor = (i%2)? '#EEEEEE' : 'FFFFDD';
+							newRow.insertCell().innerHTML = i + 1;
 							
 							let name = newRow.insertCell()
-							name.innerHTML = obj.table[keyArr[i].npp][0];
+							name.innerHTML = keyArr[i].key;//имя
 							name.style.textAlign = 'left';//
 							
-							newRow.insertCell().innerHTML = obj.table[keyArr[i].npp][1] + obj.table[keyArr[i].npp][2];
+							newRow.insertCell().innerHTML = obj.data[keyArr[i].key].group + obj.data[keyArr[i].key].index;//класс
 							for(let j = 0; j < Q_TARGET; j++){
-								tmp = newRow.insertCell()
-								//tmp.width = 20;
-								tmp.innerHTML = obj.table[keyArr[i].npp][j+5]
+								let smollTable = '<table>';
+								for(let k = 0; k < obj.data[keyArr[i].key].arr[j].length; k++){
+									smollTable += '<tr><td>' + obj.data[keyArr[i].key].arr[j][k] + '</td></tr>'
+								}
+								smollTable += '</table>'
+								newRow.insertCell().innerHTML = smollTable;
 							}
-							newRow.insertCell().innerHTML = obj.table[keyArr[i].npp][Q_TARGET + 5];
-							newRow.insertCell().innerHTML = obj.table[keyArr[i].npp][Q_TARGET + 6];
+							newRow.insertCell().innerHTML = obj.data[keyArr[i].key].summ
+							newRow.insertCell().innerHTML = obj.data[keyArr[i].key].averageArrow
 						}
 					}
 					break;
-					case 'groupControl':
-					showTable.innerHTML = '';
-					{
-						let newRow = showTable.insertRow();
-						newRow.style.backgroundColor = '#444444';
-						newRow.style.color = '#FFFFFF';
-						//------------- Заголовки --------------------
-						newRow.insertCell().innerHTML = '№';
-						newRow.insertCell().innerHTML = 'Первая</br>мишень';
-						newRow.insertCell().innerHTML = 'Текущая</br>мишень';
-						newRow.insertCell().innerHTML = 'Последняя</br>заполненная</br>мишень';
-						newRow.insertCell().innerHTML = 'clientId';
-						newRow.insertCell().innerHTML = 'Готовность';
-						newRow.insertCell().innerHTML = 'Пароль';
-						//-------- заполнение таблицы -------------------
-						for(let i = 0; i < obj.table.length; i++){
-							newRow = showTable.insertRow();
-							newRow.style.backgroundColor = (i%2)? '#EEEEEE' : '#FFFFDD';
-							for(let j = 0; j < obj.table[i].length; j++){
-								tmp = newRow.insertCell()
-								tmp.innerHTML = obj.table[i][j]
-							}
-						}
-					}
-					break;
-				*/
 				}
 			}
 		}catch(err){};
