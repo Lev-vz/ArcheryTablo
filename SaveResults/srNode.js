@@ -29,13 +29,13 @@ module.exports.isAllReady = function(groupInfo, clientId, setReady){
 	return ready;
 }
 
-module.exports.getGroupInfo = function(groupInfo, archers, clientId, targets, sets, resp){ //
+module.exports.getGroupInfo = function(groupInfo, archers, clientId, sets, resp){ //
 	let k = "";
 	for(k in groupInfo){
 		if(groupInfo[k]["clientId"] == clientId){
 			resp['group'] = k;
 			resp['target'] = groupInfo[k]["currTarget"];
-			resp['targetType'] = targets[groupInfo[k]["currTarget"]-1];
+			resp['targetType'] = sets.targetType;
 			if(module.exports.isAllReady(groupInfo, clientId, false)) resp['ready'] = sets.cnst.ALL_READY;
 			else if(groupInfo[k]["ready"])           				  resp['ready'] = sets.cnst.GROUP_READY;
 			else                                     				  resp['ready'] = sets.cnst.GROUP_NOT_READY;
@@ -44,25 +44,24 @@ module.exports.getGroupInfo = function(groupInfo, archers, clientId, targets, se
 		}
 	}
 	if(k=="") return 1;
-	if(!module.exports.getArchersInfo(archers, k, groupInfo[k].currTarget, targets[groupInfo[k].currTarget-1], resp)) return 2;
+	if(!module.exports.getArchersInfo(archers, k, groupInfo[k].currTarget, sets.cnst.Q_ARROW, resp)) return 2;
 	return 0;
 }
 
 
-module.exports.getArchersInfo = function(archers, group, target, targetType, resp){ //
+module.exports.getArchersInfo = function(archers, group, target, qArrow, resp){ //
 	i = 1;
 	for(let key in archers){
 		if(archers[key]["group"] == group){
 			resp['name'+i] = key;
-			module.exports.getPointsInfo(archers, key, target-1, targetType, i, resp)
+			module.exports.getPointsInfo(archers, key, target-1, qArrow, i, resp)
 			i++;
 		}
 	}
 }
 //archers - таблица стрелков, name - имя стрелка, target - номер мишени, targetType - тип мишени,
 //row - строка в таблице на странице управления группой, resp - ответ на запрос
-module.exports.getPointsInfo = function(archers, name, target, targetType, row, resp){ //
-	let qArrow = (targetType=='3D')? 2 : 3;
+module.exports.getPointsInfo = function(archers, name, target, qArrow, row, resp){ //
 	let summ = 0;
 	for(let j=0; j < qArrow; j++){
 		let points = archers[name].arr[target][j];
@@ -85,7 +84,7 @@ module.exports.getPointsInfo = function(archers, name, target, targetType, row, 
 	}
 	resp['integ'+row] = summ;
 }
-/*
+
 module.exports.checkPass = function(arg, userId, groups, fs, path){ //проверка допуска запрса
 	if(arg.toLowerCase().indexOf('/groupcontrol') == 0){
 		if(arg.length == 13 || arg.toLowerCase().substring(13) == '.html'){
@@ -113,12 +112,12 @@ module.exports.checkPass = function(arg, userId, groups, fs, path){ //прове
 			return '/wrongPass.html';
 		}
 	}
-	else if(!(arg.includes('.html') || arg.includes('.htm') || arg.includes('.js') ||
+	else if(!(arg.includes('.html') || arg.includes('.htm') || arg.includes('.js') || arg.includes('.css') ||
 				arg.includes('.ico') || arg.includes('.jpg') || arg.includes('.png'))) return arg + ".html";
 	
 	return arg;
 }
-*/
+
 module.exports.saveGroupInfo = function(groupInfo, key, userId, fs, path){ 
 	if(key in groupInfo){
 		for(let k in groupInfo){

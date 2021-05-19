@@ -18,27 +18,35 @@
 	</div>
 	<div class='nextLine'>
 		<div class='border'>
-			<span class='button' id='set_tournamentName' onclick='setVar(this.id)'>&nbsp;Название турнира&nbsp;</span>
-			<span class='info' id='qTargets'>12</span>
+			<span class='info' id='set_tournamentName'>&nbsp;Название турнира&nbsp;</span>
+			<span class='button' onclick='setVar(this.id)' id='TournamentName'>333</span>
 		</div>
 		<div class='border'>
-			<span class='button' id='set_qTargets' onclick='setVar(this.id)'>&nbsp;Количество мишеней на кругу&nbsp;</span>
-			<span class='info' id='qTargets'>12</span>
+			<span class='info' id='set_qTargets'>&nbsp;Количество кругов&nbsp;</span>
+			<span class='button' onclick='setVar(this.id)' id='cnst.Q_ROUNDS'>333</span>
 		</div>
 		<div class='border'>
-			<span class='button' id='set_typeTargets' onclick='setVar(this.id)'>&nbsp;Тип мишеней&nbsp;</span>
-			<span class='info' id='typeTargets'>3D</span>
+			<span class='info' id='set_qTargets'>&nbsp;Количество мишеней на кругу&nbsp;</span>
+			<span class='button' onclick='setVar(this.id)' id='cnst.Q_TARGET'>333</span>
 		</div>
 		<div class='border'>
-			<span class='button' id='set_roundNumb' onclick='setVar(this.id)'>&nbsp;Текущий круг&nbsp;</span>
-			<span class='info' id='roundNumb'>1</span>
+			<span class='info' id='set_qTargets'>&nbsp;Количество стрел на мишень&nbsp;</span>
+			<span class='button' onclick='setVar(this.id)' id='cnst.Q_ARROW'>333</span>
+		</div>
+		<div class='border'>
+			<span class='info' id='set_typeTargets'>&nbsp;Тип мишеней&nbsp;</span>
+			<span class='button' onclick='setVar(this.id)' id='targetsType'>333</span>
+		</div>
+		<div class='border'>
+			<span class='info' id='set_roundNumb'>&nbsp;Текущий круг&nbsp;</span>
+			<span class='button' onclick='setVar(this.id)' id='currRound'>333</span>
 		</div>
 	</div>
 	
 	
 	<div><table border=0 cellpadding=5' id='ResultTable'></div>
 	
-	<script type="text/javascript" src="const.js"></script>
+	<script type="text/javascript" src="constants.js"></script>
 	<script type="text/javascript" src="srAdmin.js"></script>
 	
 	<!--div  style='font-size : 44pt;'>
@@ -57,7 +65,7 @@
 			let varRusName = document.getElementById(varId).innerHTML;
 			let val = prompt('Введите новое значение для настройки ' + varRusName);
 			if(val == null || val == '') return;
-			wsRequest('setSettingVar', {'name':this.id.substring(4), 'val':val})
+			wsRequest('setSettingVar', {'name':varId, 'val':val})
 		}
 		
 		function addGroup(){
