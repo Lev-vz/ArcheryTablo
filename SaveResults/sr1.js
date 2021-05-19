@@ -4,24 +4,25 @@ const fs = require("fs");
 const cookieParser = require('cookie-parser');
 
 const srn = require("./srNode");
-//const cnst = require("./const");
+const tls = require("./toolsNode");
 
 //---------------------------------- Настройки текущего турнира -----------------------------------------
 let settingFileName = 'tournamentSetting.json'
-let setting = srn.uploadFromFile(settingFileName);
+let setting = tls.uploadFromFile(settingFileName);
 if(setting == null){
 	setting = {}
 	setting['cnst'] = {};
 	setting.cnst['Q_TARGET'] = 24;
 	setting.cnst['Q_ARROW'] = 2;
-	setting.cnst['Q_ROUNDS'] = 4;
+	setting.cnst['Q_ROUNDS'] = 2;
 	setting.cnst['ALL_READY'] = 'МОЖНО СТРЕЛЯТЬ'
 	setting.cnst['GROUP_READY'] = 'НЕ ВСЕ ГОТОВЫ'
 	setting.cnst['GROUP_NOT_READY'] = 'ГРУППА НЕ ГОТОВА'
 
 	setting['data'] = 'data/';
-	setting['tournament'] = 'F3D020521';
-	let tournamentPath = setting['data'] + setting['tournament'];
+	setting['TournamentName'] = 'F3D020521';
+	setting['targetsType'] = '3D';
+	let tournamentPath = setting['data'] + setting['TournamentName'];
 	try {
 	  if (!fs.existsSync(tournamentPath)){
 		fs.mkdirSync(tournamentPath)
@@ -46,7 +47,7 @@ if(setting == null){
 	setting['currRound'] = 3;
 	setting['currRoundPath'] = setting.Round[0] + '/';
 	
-	srn.saveInFile(settingFileName, setting)
+	tls.saveInFile(settingFileName, setting)
 }
 
 let constants = '';
@@ -62,7 +63,7 @@ let archList = setting.currRoundPath + 'archList.txt'
 try{//Читаем список участников
 	archers = JSON.parse(fs.readFileSync(archList, 'utf8'));
 	for(let key in archers){
-		let archerData = srn.uploadFromFile(setting.currRoundPath + key.trim()+'.pnt');
+		let archerData = tls.uploadFromFile(setting.currRoundPath + key.trim()+'.pnt');
 		if(archerData!=null){
 			//console.log('archerData='+JSON.stringify(archerData));//---------------------------------------------checkOut-----------------------------------------------
 			archers[key]['summ'] = archerData.summ;
@@ -164,15 +165,13 @@ webSocketServer.on('connection', function(ws) {
 		if(obj.func == 'Result saver'){//если в полученном сообщении есть слово 'Result saver'
 			clientID = obj.userId;
 			clients[clientID] = ws;			//регистрируем его как получателя информации о начале стрельбы
-			srn.getGroupInfo(groupInfo, archers, obj.userId, targets, settings, resp);
+			srn.getGroupInfo(groupInfo, archers, obj.userId, settings, resp);
 			ws.send(JSON.stringify(resp));
 			console.log('Подключен клиент ' + clientID);
 		}else if(obj.func == 'Result table'){//если в полученном сообщении есть слово 'Result table'
 			let time = new Date()
 			tabId = 'tab'+time.getMilliseconds()+time.getSeconds()+time.getMinutes()+time.getHours()+time.getDate()+Math.random();
 			tables[tabId] = ws;			//регистрируем его как получателя табличной информации
-			//srn.getGroupInfo(groupInfo, archers, obj.userId, targets, resp);
-			//ws.send(JSON.stringify(resp));
 			console.log('Подключена таблица ' + tabId);
 		}else{
 			try{
@@ -181,7 +180,7 @@ webSocketServer.on('connection', function(ws) {
 						let archer = obj.data.name;
 						let target = obj.data.target - 1;
 						archers[archer].arr[target][obj.data.arrow - 1] = obj.data.points;
-						srn.getPointsInfo(archers, archer, target, targets[target], obj.data.row, resp)
+						srn.getPointsInfo(archers, archer, target, setting['targetType'], obj.data.row, resp)
 						ws.send(JSON.stringify(resp));
 						srn.saveInFile(setting.currRoundPath + archer.trim() + '.pnt', archers[archer]);
 					break;
@@ -194,16 +193,16 @@ webSocketServer.on('connection', function(ws) {
 							resp['ready'] = cnst.GROUP_READY;
 							ws.send(JSON.stringify(resp));
 						}
-						//console.log('groupInfo='+JSON.stringify(groupInfo));
+						
 						srn.saveInFile(setting.currRoundPath + 'groupInfo.json', groupInfo);
 					break;
 					case 'nextTarget' :
 					{
 						let gr = obj.data.group;
-						if(groupInfo[gr].currTarget < targets.length) groupInfo[gr].currTarget++;
+						if(groupInfo[gr].currTarget < setting.cnst['Q_TARGET']) groupInfo[gr].currTarget++;
 						else groupInfo[gr].currTarget = 1;
 						srn.saveInFile(setting.currRoundPath + 'groupInfo.json', groupInfo);
-						srn.getGroupInfo(groupInfo, archers, obj.userId, targets, settings, resp);
+						srn.getGroupInfo(groupInfo, archers, obj.userId, settings, resp);
 						ws.send(JSON.stringify(resp));
 						//----- Пересчитать таблицу и разослать всем зарегистрированным просмолтрищикам таблиц ------------
 						resp = {};
@@ -215,9 +214,9 @@ webSocketServer.on('connection', function(ws) {
 					{
 						let gr = obj.data.group;
 						if(groupInfo[gr].currTarget > 1) groupInfo[gr].currTarget--;
-						else groupInfo[gr].currTarget = targets.length;
+						else groupInfo[gr].currTarget = setting.cnst['Q_TARGET'];
 						srn.saveInFile(setting.currRoundPath + 'groupInfo.json', groupInfo);
-						srn.getGroupInfo(groupInfo, archers, obj.userId, targets, settings, resp);
+						srn.getGroupInfo(groupInfo, archers, obj.userId, settings, resp);
 						ws.send(JSON.stringify(resp));
 					}
 					break;
@@ -257,6 +256,26 @@ webSocketServer.on('connection', function(ws) {
 						ws.send(JSON.stringify(resp));
 					}
 					break;
+					case 'getCurrSetting' :
+					{
+						console.log('setting='+JSON.stringify(setting));
+						ws.send(JSON.stringify(setting));
+					}
+					break;
+					case 'setSettingVar' :
+					{
+						let nVal = parseInt(obj.data.val);
+						if(isNaN(nVal)) nVal = obj.data.val;
+						
+						if(obj.data.name.includes('cnst.')){
+							setting.cnst[obj.data.name.substring(5)] = nVal;
+						}else{
+							setting[obj.data.name] = nVal;
+						}
+						tls.saveInFile(settingFileName, setting)
+						ws.send(JSON.stringify(setting));
+					}
+					break;
 				}
 				
 				
@@ -285,7 +304,7 @@ console.log("Express in 3000, WebSocket in 3001");
 
 
 //				1		2		3		4		5		6		7		8		9		10		11		12
-let targets = ['3D',  '3D',    '3D',   '3D',   '3D',   '3D',   '3D',   '3D',   '3D',   '3D',   '3D',   '3D']
+//let targets = ['3D',  '3D',    '3D',   '3D',   '3D',   '3D',   '3D',   '3D',   '3D',   '3D',   '3D',   '3D']
 //let targets = ['Field','Field','Field','Field','Field','Field','Field','Field','Field','Field','Field','Field']
 //	"1":"3D","2":"3D","3":"3D","4":"3D","5":"3D","6":"3D","7":"3D","8":"3D","9":"3D","10":"3D","11":"3D","12":"3D",
 //	"13":"Field","14":"Field","15":"Field","16":"Field","17":"Field","18":"Field","19":"Field","20":"Field","21":"Field","22":"Field","23":"Field","24":"Field",

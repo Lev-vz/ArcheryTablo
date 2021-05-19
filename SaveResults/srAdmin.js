@@ -101,7 +101,15 @@ function setWebSocketClient(){
 					}
 					break;
 				}
+			}else{
+				document.getElementById('TournamentName').innerHTML = obj['TournamentName'];
+				document.getElementById('currRound').innerHTML 		= obj['currRound'];
+				document.getElementById('targetsType').innerHTML 	= obj['targetsType'];
+				document.getElementById('cnst.Q_TARGET').innerHTML 		= obj.cnst['Q_TARGET'];
+				document.getElementById('cnst.Q_ARROW').innerHTML 		= obj.cnst['Q_ARROW'];
+				document.getElementById('cnst.Q_ROUNDS').innerHTML 		= obj.cnst['Q_ROUNDS'];
 			}
+			
 		}catch(err){};
 	};
 
@@ -123,9 +131,9 @@ function wsRequest(func, data) {// показать сообщение в div#su
 
 function registration(message, socket){
 	if(message=='Hi, client!'){
-		//let obj = {};
-		//obj['func'] = 'Result table';
-		//socket.send(JSON.stringify(obj));
+		let obj = {};
+		obj['func'] = 'getCurrSetting';
+		socket.send(JSON.stringify(obj));
 		return true;
 	}
 	return false;
