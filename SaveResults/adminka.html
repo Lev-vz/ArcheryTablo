@@ -9,12 +9,17 @@
 	<div class='nextLine'><a href='index.html'>На главную</a></div>
 	<div class='nextLine'>
 		<span class='button' id='groupControl' onclick='getTable(this.id)'>&nbsp;Группы&nbsp;</span>
+		<span class='button' id='addGroup' onclick='addGroup()'>&nbsp;Добавить группу&nbsp;</span>
 	</div>
 	<div class='nextLine'>
 		<span class='button' id='archersControlClass' onclick='getTable(this.id)'>&nbsp;Участники по классам&nbsp;</span>
 	</div>
 	<div class='nextLine'>
 		<span class='button' id='archersControlGroup' onclick='getTable(this.id)'>&nbsp;Участники по группам&nbsp;</span>
+	</div>
+	<div class='nextLine'>
+		<span class='button' onclick='addArcher()'>&nbsp;Добавить участника&nbsp;</span>
+		<span id='addArcher'></span>
 	</div>
 	<div class='nextLine'>
 		<div class='border'>
@@ -43,7 +48,6 @@
 		</div>
 	</div>
 	
-	
 	<div><table border=0 cellpadding=5' id='ResultTable'></div>
 	
 	<script type="text/javascript" src="constants.js"></script>
@@ -53,10 +57,39 @@
 		<span class='button' id='addGroup' onclick='addGroup()'>Добавить группу</span>
 	</div-->
 	<script>
+		function addArcher(){
+			let formAddArcher = document.getElementById('addArcher')
+			formAddArcher.innerHTML = '<div class="border"><form id="formAddArch">'+ 
+			'<div class=nextLine><div class="asSpan" style="width:200px">Имя, фамилия</div><input name="name" type="text"></div>' +
+			'<div class=nextLine><div class="asSpan" style="width:200px">Класс, дивизион</div><input name="class" type="text"></div>' +
+			'<div class=nextLine><div class="asSpan" style="width:200px">Клуб</div><input name="club" type="text"></div>' +
+			'<div class=nextLine><div class="asSpan" style="width:200px">Группа</div><input name="group" type="text"></div>' +
+			'<div class=nextLine><div class="asSpan" style="width:200px">Индекс</div><input name="index" type="text"></div>' +
+			'<div"><input style="float: right;" type="button" value="ОК" onClick="formOk()">'+
+			'<input style="float: left;" type="button" value="ОТМЕНА" onClick="formCancel()"></div>'+
+			'</form></div>'
+		}
+		function formCancel(){
+			let formAddArcher = document.getElementById('addArcher')
+			formAddArcher.innerHTML = ''
+		}
+		function formOk(){
+			let fieldset = formAddArch.elements;
+			let data = {};
+			data['name'] = fieldset.name.value
+			data['class'] = fieldset.class.value
+			data['club'] = fieldset.club.value
+			data['group'] = fieldset.group.value
+			data['index'] = fieldset.index.value
+			let formAddArcher = document.getElementById('addArcher')
+			formAddArcher.innerHTML = ''
+			wsRequest('addArcher', data);
+		}
+		
 		let currTable = ''
 		
 		function getTable(tableId){
-			if(currTable == tableId) return;
+			//if(currTable == tableId) return;
 			currTable = tableId;
 			wsRequest('adminControl', tableId);
 		}

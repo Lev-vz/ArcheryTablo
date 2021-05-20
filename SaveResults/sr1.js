@@ -6,8 +6,9 @@ const cookieParser = require('cookie-parser');
 const srn = require("./srNode");
 const tls = require("./toolsNode");
 
+
 //---------------------------------- Настройки текущего турнира -----------------------------------------
-let settingFileName = 'tournamentSetting.json'
+let settingFileName = 'tournamentSetting.json';
 let setting = tls.uploadFromFile(settingFileName);
 if(setting == null){
 	setting = {}
@@ -20,21 +21,19 @@ if(setting == null){
 	setting.cnst['GROUP_NOT_READY'] = 'ГРУППА НЕ ГОТОВА'
 
 	setting['data'] = 'data/';
-	setting['TournamentName'] = 'F3D020521';
+	setting['TournamentName'] = 'test';
 	setting['targetsType'] = '3D';
-	let tournamentPath = setting['data'] + setting['TournamentName'];
-	try {
-	  if (!fs.existsSync(tournamentPath)){
-		fs.mkdirSync(tournamentPath)
-	  }
-	} catch (err) {
-	  console.error(err)
-	}
+	setting['currRound'] = 0;
 	
-	//setting['qRounds'] = 4;
+	setDependendSetting();
+	
+	tls.saveInFile(settingFileName, setting);
+}
+
+function setDependendSetting(){
 	setting['Round'] = []
 	for(let i = 0; i < setting.cnst.Q_ROUNDS; i++){
-		setting['Round'][i] = tournamentPath + '/round' + (i+1);
+		setting['Round'][i] = setting['data'] + setting['TournamentName'] + '/' + 'round' + (i+1);
 		try {
 		  if (!fs.existsSync(setting.Round[i])){
 			fs.mkdirSync(setting.Round[i])
@@ -43,25 +42,29 @@ if(setting == null){
 		  console.error(err)
 		}
 	}
-
-	setting['currRound'] = 3;
-	setting['currRoundPath'] = setting.Round[0] + '/';
+	setting['currRoundPath'] = setting.Round[setting['currRound']] + '/';
+	let constants = '';
+	for(let key in setting.cnst){
+		if(isNaN(parseFloat(setting.cnst[key]))) constants += 'const ' + key + ' = "' + setting.cnst[key] + '"\n';
+		else 									  constants += 'const ' + key + ' = ' + setting.cnst[key] + '\n';						 
+	}
+	fs.writeFileSync('constants.js', constants, 'utf8');
+}
 	
-	tls.saveInFile(settingFileName, setting)
-}
-
-let constants = '';
-for(let key in setting.cnst){
-	if(isNaN(parseFloat(setting.cnst[key]))) constants += 'const ' + key + ' = "' + setting.cnst[key] + '"\n';
-	else 									  constants += 'const ' + key + ' = ' + setting.cnst[key] + '\n';						 
-}
-fs.writeFileSync('constants.js', constants, 'utf8');
 //-----------------------------------------------------------------------------------------------------------------
 //-------------------------------------- Чтение данных об участниках ----------------------------------------------
-let archers = {}
-let archList = setting.currRoundPath + 'archList.txt'
-try{//Читаем список участников
-	archers = JSON.parse(fs.readFileSync(archList, 'utf8'));
+let archJson = 'archList.json';
+let archers = {};
+if(!getArchList()) return;
+
+function getArchList(){//Читаем список участников
+	archJson = setting.currRoundPath + 'archList.json';
+	archers = tls.uploadFromFile(archJson);
+	if(archers==null) archers = tls.uploadFromFile(setting['data'] + setting['TournamentName'] + '/' + 'archList.txt');
+	if(archers==null){
+		console.log('Ошибка чтения списка участников');
+		return false;
+	}
 	for(let key in archers){
 		let archerData = tls.uploadFromFile(setting.currRoundPath + key.trim()+'.pnt');
 		if(archerData!=null){
@@ -70,29 +73,36 @@ try{//Читаем список участников
 			archers[key]['otherRoundSumm'] = srn.getOtherRoundSumm(setting['currRound'], key, setting);
 			archers[key]['arr'] = archerData.arr;
 		}else{
-			archers[key]['summ'] = 0;
-			archers[key]['otherRoundSumm'] = srn.getOtherRoundSumm(setting['currRound'], key, setting);
-			archers[key]['arr'] = [];
-			for(let i=0; i<setting.cnst.Q_TARGET; i++){
-				archers[key]['arr'][i]=[];
-				for(let j=0; j<setting.cnst.Q_ARROW; j++){
-					archers[key]['arr'][i][j] = 0;
-				}
-			}
+			setArcherFilds(key);
 		}
 	}
-}catch(err){
-	console.log('Ошибка чтения списка участников',err);
-	return;
+	tls.saveInFile(archJson, archers);
+	return true;
+}
+
+function setArcherFilds(key){
+	archers[key]['summ'] = 0;
+	archers[key]['otherRoundSumm'] = srn.getOtherRoundSumm(setting['currRound'], key, setting);
+	archers[key]['arr'] = [];
+	for(let i=0; i<setting.cnst.Q_TARGET; i++){
+		archers[key]['arr'][i]=[];
+		for(let j=0; j<setting.cnst.Q_ARROW; j++){
+			archers[key]['arr'][i][j] = 0;
+		}
+	}
 }
 //-------------------------------------------------------------------------------------------------------------------
 //------------------------------------------ Чтение данных о группах ------------------------------------------------
-let groupInfo = {};//Информация о группах
+let groupInfo;//Информация о группах
+let grInfoPath;// = 'groupInfo.json';
+setGroupInfo();
 
-let grInfoPath = setting.currRoundPath + 'groupInfo.json'
-try{//Пытаемся прочитать файл с информацией о группах,
-	groupInfo = JSON.parse(fs.readFileSync(grInfoPath, 'utf8'));
-}catch(err){
+function setGroupInfo(){
+	grInfoPath = setting.currRoundPath + 'groupInfo.json';
+	//Пытаемся прочитать файл с информацией о группах,
+	groupInfo = tls.uploadFromFile(grInfoPath);
+	if(groupInfo != null) return;
+	groupInfo = {};
 	let group = "";
 	for(let key in archers){
 		let thisGroup = archers[key]['group'];
@@ -108,7 +118,7 @@ try{//Пытаемся прочитать файл с информацией о 
 			groupInfo[group]["pass"] = ('' + Math.random()).substring(2,6);
 		}
 	}
-	srn.saveInFile(grInfoPath, groupInfo);
+	tls.saveInFile(grInfoPath, groupInfo);
 };
 
 srn.saveGroupInfo(groupInfo, "", "", fs);
@@ -124,7 +134,7 @@ exp.get("/", function (request, response) {
 });
 
 exp.get("/org3344", function (request, response) {
-	console.log('Cookie/admin: ', request.cookies['userArcherTournamentId'])//---------------------------------------------checkOut-----------------------------------------------
+	//console.log('Cookie/admin: ', request.cookies['userArcherTournamentId'])//---------------------------------------------checkOut-----------------------------------------------
     response.sendFile(__dirname + '/adminka.html');
 });
 
@@ -132,7 +142,7 @@ exp.get("/favicon.ico", function(request, response) {
 });
 
 exp.get("/*", function (request, response) {
-	console.log('Cookie/*: ', request.cookies['userArcherTournamentId'])//---------------------------------------------checkOut-----------------------------------------------
+	//console.log('Cookie/*: ', request.cookies['userArcherTournamentId'])//---------------------------------------------checkOut-----------------------------------------------
 	if(request.url.includes('admin')){
 		response.sendFile(__dirname + '/wrongPass.html');
 		return;
@@ -182,7 +192,7 @@ webSocketServer.on('connection', function(ws) {
 						archers[archer].arr[target][obj.data.arrow - 1] = obj.data.points;
 						srn.getPointsInfo(archers, archer, target, setting['targetType'], obj.data.row, resp)
 						ws.send(JSON.stringify(resp));
-						srn.saveInFile(setting.currRoundPath + archer.trim() + '.pnt', archers[archer]);
+						tls.saveInFile(setting.currRoundPath + archer.trim() + '.pnt', archers[archer]);
 					break;
 					case 'sendReady':
 						if(srn.isAllReady(groupInfo, obj.userId, true)){
@@ -194,14 +204,14 @@ webSocketServer.on('connection', function(ws) {
 							ws.send(JSON.stringify(resp));
 						}
 						
-						srn.saveInFile(setting.currRoundPath + 'groupInfo.json', groupInfo);
+						tls.saveInFile(setting.currRoundPath + 'groupInfo.json', groupInfo);
 					break;
 					case 'nextTarget' :
 					{
 						let gr = obj.data.group;
 						if(groupInfo[gr].currTarget < setting.cnst['Q_TARGET']) groupInfo[gr].currTarget++;
 						else groupInfo[gr].currTarget = 1;
-						srn.saveInFile(setting.currRoundPath + 'groupInfo.json', groupInfo);
+						tls.saveInFile(setting.currRoundPath + 'groupInfo.json', groupInfo);
 						srn.getGroupInfo(groupInfo, archers, obj.userId, settings, resp);
 						ws.send(JSON.stringify(resp));
 						//----- Пересчитать таблицу и разослать всем зарегистрированным просмолтрищикам таблиц ------------
@@ -215,7 +225,7 @@ webSocketServer.on('connection', function(ws) {
 						let gr = obj.data.group;
 						if(groupInfo[gr].currTarget > 1) groupInfo[gr].currTarget--;
 						else groupInfo[gr].currTarget = setting.cnst['Q_TARGET'];
-						srn.saveInFile(setting.currRoundPath + 'groupInfo.json', groupInfo);
+						tls.saveInFile(setting.currRoundPath + 'groupInfo.json', groupInfo);
 						srn.getGroupInfo(groupInfo, archers, obj.userId, settings, resp);
 						ws.send(JSON.stringify(resp));
 					}
@@ -231,13 +241,14 @@ webSocketServer.on('connection', function(ws) {
 					case 'adminControl' :
 					{
 						if(obj.data == 'groupControl')	srn.getGroupTable(groupInfo, resp);
-						else 							srn.getTable(groupInfo, archers, resp);
+						else 							resp = {'data':archers};
 						ws.send(JSON.stringify(resp));
 					}
 					break;
 					case 'setReady' :
 					{
 						groupInfo[obj.data].ready = !groupInfo[obj.data].ready;
+						tls.saveInFile(grInfoPath, groupInfo);
 						srn.getGroupTable(groupInfo, resp);
 						ws.send(JSON.stringify(resp));
 					}
@@ -245,20 +256,57 @@ webSocketServer.on('connection', function(ws) {
 					case 'setGroup' :
 					{
 						archers[obj.data.name].group = obj.data.val;
-						srn.getTable(groupInfo, archers, resp);
-						ws.send(JSON.stringify(resp));
+						tls.saveInFile(archJson, archers);
+						//srn.getTable(groupInfo, archers, resp);
+						ws.send(JSON.stringify({'data':archers}));
 					}
 					break;
 					case 'setIndex' :
 					{
 						archers[obj.data.name].index = obj.data.val;
-						srn.getTable(groupInfo, archers, resp);
+						tls.saveInFile(archJson, archers);
+						ws.send(JSON.stringify({'data':archers}));
+					}
+					break;
+					case 'addGroup' :
+					{
+						groupInfo[obj.data] = {};
+						let groupNumb = parseInt(obj.data);
+						if(isNaN(groupNumb)) break;
+						groupInfo[obj.data]["firstTarget"] = groupNumb;
+						groupInfo[obj.data]["currTarget"] = groupNumb;
+						groupInfo[obj.data]["lastTarget"] = groupNumb;
+						groupInfo[obj.data]["clientId"] = '';
+						groupInfo[obj.data]["ready"] = false;
+						groupInfo[obj.data]["pass"] = ('' + Math.random()).substring(2,6);
+						tls.saveInFile(grInfoPath, groupInfo);
+						srn.getGroupTable(groupInfo, resp);
 						ws.send(JSON.stringify(resp));
+					}
+					case 'addArcher' :
+					{
+						archers[obj.data.name] = {};
+						let groupNumb = parseInt(obj.data.group);
+						if(isNaN(groupNumb)) break;
+						archers[obj.data.name]['group'] = obj.data.group;
+						archers[obj.data.name]['index'] = obj.data.index;
+						archers[obj.data.name]['class'] = obj.data.class;
+						archers[obj.data.name]['club'] = obj.data.club;
+						setArcherFilds(obj.data.name)
+						tls.saveInFile(archJson, archers);
+						ws.send(JSON.stringify({'data':archers}));
+					}
+					break;
+					case 'delArcher' :
+					{
+						delete archers[obj.data];
+						tls.saveInFile(archJson, archers);
+						ws.send(JSON.stringify({'data':archers}));
 					}
 					break;
 					case 'getCurrSetting' :
 					{
-						console.log('setting='+JSON.stringify(setting));
+						//console.log('setting='+JSON.stringify(setting));
 						ws.send(JSON.stringify(setting));
 					}
 					break;
@@ -273,6 +321,9 @@ webSocketServer.on('connection', function(ws) {
 							setting[obj.data.name] = nVal;
 						}
 						tls.saveInFile(settingFileName, setting)
+						setDependendSetting();
+						getArchList();
+						setGroupInfo();
 						ws.send(JSON.stringify(setting));
 					}
 					break;
@@ -301,11 +352,3 @@ webSocketServer.on('connection', function(ws) {
 //---------------------------------------------------------------------------------------
 
 console.log("Express in 3000, WebSocket in 3001");
-
-
-//				1		2		3		4		5		6		7		8		9		10		11		12
-//let targets = ['3D',  '3D',    '3D',   '3D',   '3D',   '3D',   '3D',   '3D',   '3D',   '3D',   '3D',   '3D']
-//let targets = ['Field','Field','Field','Field','Field','Field','Field','Field','Field','Field','Field','Field']
-//	"1":"3D","2":"3D","3":"3D","4":"3D","5":"3D","6":"3D","7":"3D","8":"3D","9":"3D","10":"3D","11":"3D","12":"3D",
-//	"13":"Field","14":"Field","15":"Field","16":"Field","17":"Field","18":"Field","19":"Field","20":"Field","21":"Field","22":"Field","23":"Field","24":"Field",
-//}

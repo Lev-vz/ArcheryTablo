@@ -4,15 +4,17 @@ module.exports.saveInFile = function(fileName, obj){
 	try{															//записываем новые данные в файл на случай краха
 		fs.writeFileSync(fileName, JSON.stringify(obj), 'utf8');
 	}catch(err){
-		console.log('Ошибка записи в файл ' + fileName,err);
+		console.log('Ошибка записи в файл "' + fileName,err + '"');
 	}
 }
 
 module.exports.uploadFromFile = function(fileName){
 	try{															//записываем новые данные в файл на случай краха
+		console.log('module.exports.uploadFromFile: Читаем файл ' + fileName);
 		let obj = JSON.parse(fs.readFileSync(fileName, 'utf8'));
 		return obj;
 	}catch(err){
+		console.log('module.exports.uploadFromFile: Ошибка чтения файла ' + fileName);
 		return null;
 	}
 }

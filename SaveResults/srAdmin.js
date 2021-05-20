@@ -16,7 +16,14 @@ function setWebSocketClient(){
 		//----- если это была не регмстрация ws-клиента - начинаем обработку данных
 		try{
 			let obj = JSON.parse(event.data);
-			if('table' in obj){
+			if('cnst' in obj){
+				document.getElementById('TournamentName').innerHTML = obj['TournamentName'];
+				document.getElementById('currRound').innerHTML 		= obj['currRound'];
+				document.getElementById('targetsType').innerHTML 	= obj['targetsType'];
+				document.getElementById('cnst.Q_TARGET').innerHTML 		= obj.cnst['Q_TARGET'];
+				document.getElementById('cnst.Q_ARROW').innerHTML 		= obj.cnst['Q_ARROW'];
+				document.getElementById('cnst.Q_ROUNDS').innerHTML 		= obj.cnst['Q_ROUNDS'];
+			}else{
 				let showTable = document.getElementById('ResultTable')
 				if(!showTable) return;
 				switch(currTable){
@@ -51,63 +58,115 @@ function setWebSocketClient(){
 						}
 					}
 					break;
-					case 'archersControl':
+					case 'archersControlClass':
 					showTable.innerHTML = '';
 					{
-						let keyArr = []
-						for(let i = 0; i < obj.table.length; i++){
-							keyArr.push({'npp':i, 'txt':obj.table[i][0]});
+						let keyArr = [];
+						for(key in obj.data){
+							keyArr.push({'key':key, 'txt':obj.data[key].class, 'txt2':key});
 						}
+						keyArr.sort(compareTxt2);
 						keyArr.sort(compareTxt);
+						//------------- Заголовки --------------------
 						// Insert a row in the table at row index 0
 						let newRow = showTable.insertRow(0);
 						newRow.style.backgroundColor = '#444444';
 						newRow.style.color = '#FFFFFF';
 						newRow.insertCell().innerHTML = '№';
 						newRow.insertCell().innerHTML = 'Имя';
-						newRow.insertCell().innerHTML = 'Класс/Дивизион';
-						newRow.insertCell().innerHTML = 'Клуб';
 						newRow.insertCell().innerHTML = 'Группа';
 						newRow.insertCell().innerHTML = 'Индекс';
+						let cassDiv = '';
+						let j = 1;
+						//-------- заполнение таблицы -------------------
 						for(let i = 0; i < keyArr.length; i++){
 							let newRow = showTable.insertRow();
+							if(cassDiv != obj.data[keyArr[i].key].class){
+								cassDiv = obj.data[keyArr[i].key].class;
+								newRow.style.backgroundColor = '#666666';
+								newRow.style.color = '#FFFFFF';
+								let newCell = newRow.insertCell();
+								newCell.colSpan = 4;
+								newCell.innerHTML = cassDiv;
+								newRow = showTable.insertRow();
+								j = 1;
+							}
 							newRow.style.backgroundColor = (i%2)? '#EEEEEE' : 'FFFFDD';
-							newRow.insertCell().innerHTML = i + 1;
+							newRow.insertCell().innerHTML = j++;
+							
+							let name = newRow.insertCell()
+							name.innerHTML = keyArr[i].key;//имя
+							name.style.textAlign = 'left';//
+							//name.id = keyArr[i].key;
+							name.onclick = function() {
+								//if(confirm('Удалить из списка лучника ' + this.id)) wsRequest('delArcher', 'name':this.id)
+								if(confirm('Удалить из списка лучника ' + keyArr[i].key)) wsRequest('delArcher', keyArr[i].key)
+							}
 							
 							let tmp = newRow.insertCell()
-							tmp.innerHTML = obj.table[keyArr[i].npp][0];//имя
-							tmp.style.textAlign = 'left';//
-							
-							newRow.insertCell().innerHTML = obj.table[keyArr[i].npp][3];//класс
-							newRow.insertCell().innerHTML = obj.table[keyArr[i].npp][4];//клуб
-							tmp = newRow.insertCell();
-							tmp.innerHTML = obj.table[keyArr[i].npp][1];//группа
-							tmp.id = obj.table[keyArr[i].npp][0];
+							tmp.innerHTML = obj.data[keyArr[i].key].group;
+							tmp.id = keyArr[i].key;
 							tmp.onclick = function() {
 								let newGroup = prompt('Введите новую группу для лучника ' + this.id);
 								if(newGroup == null || newGroup == '') return;
 								wsRequest('setGroup', {'name':this.id, 'val':newGroup})
 							}
-							
-							tmp = newRow.insertCell();
-							tmp.innerHTML = obj.table[keyArr[i].npp][2];//индекс
-							tmp.id = obj.table[keyArr[i].npp][0];
-							tmp.onclick = function() {
-								let newIndex = prompt('Введите новый индех для лучника ' + this.id);
-								if(newIndex == null || newIndex == '') return;
-								wsRequest('setIndex', {'name':this.id, 'val':newIndex})
+
+							newRow.insertCell().innerHTML = obj.data[keyArr[i].key].index;
+						}
+					}
+					break;
+					case 'archersControlGroup':
+					showTable.innerHTML = '';
+					{
+						let keyArr = [];
+						for(key in obj.data){
+							keyArr.push({'key':key, 'txt':obj.data[key].index, 'txt2':obj.data[key].group, 'num':parseInt(obj.data[key].group)});
+						}
+						keyArr.sort(compareTxt);
+						keyArr.sort(compareTxt2);
+						keyArr.sort(compareNum);
+						//------------- Заголовки --------------------
+						// Insert a row in the table at row index 0
+						let newRow = showTable.insertRow(0);
+						newRow.style.backgroundColor = '#444444';
+						newRow.style.color = '#FFFFFF';
+						newRow.insertCell().innerHTML = 'Индекс';
+						newRow.insertCell().innerHTML = 'Имя';
+						newRow.insertCell().innerHTML = 'Класс/дивизион';
+						let group = '';
+						//-------- заполнение таблицы -------------------
+						for(let i = 0; i < keyArr.length; i++){
+							let newRow = showTable.insertRow();
+							if(group != obj.data[keyArr[i].key].group){
+								group = obj.data[keyArr[i].key].group;
+								newRow.style.backgroundColor = '#666666';
+								newRow.style.color = '#FFFFFF';
+								let newCell = newRow.insertCell();
+								newCell.colSpan = 4;
+								newCell.innerHTML = group;
+								newRow = showTable.insertRow();
 							}
+							newRow.style.backgroundColor = (i%2)? '#EEEEEE' : 'FFFFDD';
+							//newRow.insertCell().innerHTML = obj.data[keyArr[i].key].index;
+							let tmp = newRow.insertCell()
+							tmp.innerHTML = obj.data[keyArr[i].key].index;
+							tmp.id = keyArr[i].key;
+							tmp.onclick = function() {
+								let newGroup = prompt('Введите новый индекс для лучника ' + this.id);
+								if(newGroup == null || newGroup == '') return;
+								wsRequest('setIndex', {'name':this.id, 'val':newGroup})
+							}
+							
+							let name = newRow.insertCell()
+							name.innerHTML = keyArr[i].key;//имя
+							name.style.textAlign = 'left';//
+							
+							newRow.insertCell().innerHTML = obj.data[keyArr[i].key].class;
 						}
 					}
 					break;
 				}
-			}else{
-				document.getElementById('TournamentName').innerHTML = obj['TournamentName'];
-				document.getElementById('currRound').innerHTML 		= obj['currRound'];
-				document.getElementById('targetsType').innerHTML 	= obj['targetsType'];
-				document.getElementById('cnst.Q_TARGET').innerHTML 		= obj.cnst['Q_TARGET'];
-				document.getElementById('cnst.Q_ARROW').innerHTML 		= obj.cnst['Q_ARROW'];
-				document.getElementById('cnst.Q_ROUNDS').innerHTML 		= obj.cnst['Q_ROUNDS'];
 			}
 			
 		}catch(err){};
@@ -126,6 +185,7 @@ function wsRequest(func, data) {// показать сообщение в div#su
 	let obj = {};
 	obj['func'] = func;
 	obj['data'] = data;
+	document.getElementById('ResultTable').innerHTML = '';
 	socket.send(JSON.stringify(obj));
 }
 
@@ -147,6 +207,11 @@ function compareTxt(a, b) {
   if (a.txt < b.txt) return -1;
   if (a.txt > b.txt) return 1;
   if (a.txt == b.txt) return 0;
+}
+function compareTxt2(a, b) {
+  if (a.txt2 < b.txt2) return -1;
+  if (a.txt2 > b.txt2) return 1;
+  if (a.txt2 == b.txt2) return 0;
 }
 
 function compareNum(a, b) {

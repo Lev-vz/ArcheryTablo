@@ -67,6 +67,11 @@ div.border {
 	padding: 10px;
 	margin : 5px;
 }
+div.asSpan {
+	display:inline-block;
+	padding: 10px;
+	margin : 5px;
+}
 div.nextLine {
 	font-weight:bolder; 
 	font-size : 24pt;/* Размер шрифта в пунктах */ 
@@ -80,6 +85,14 @@ input[type="number"] {
 	box-sizing: border-box;
 	border-radius: 3px;
 	border: 1px solid #ddd;*/
+	font-size: 30px;
+	font-weight:bolder; 
+} 
+input[type="button"] {
+	font-size: 30px;
+	font-weight:bolder; 
+} 
+input[type="text"] {
 	font-size: 30px;
 	font-weight:bolder; 
 } 

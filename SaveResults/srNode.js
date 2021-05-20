@@ -144,7 +144,7 @@ module.exports.saveGroupInfo = function(groupInfo, key, userId, fs, path){
 	}
 }
 
-module.exports.getTable = function(groupInfo, archers, resp){
+module.exports.getTable = function(groupInfo, archers, sets, resp){
 	//console.log('archers='+JSON.stringify(archers));//---------------------------------------------checkOut-----------------------------------------------
 	resp['table']=[]
 	let i = 0;
@@ -159,7 +159,8 @@ module.exports.getTable = function(groupInfo, archers, resp){
 		for(let j = 0; j < archers[key].arr.length; j++){
 			resp.table[i][j+pos] = '';
 		}
-		getNumbersForTable(groupInfo, archers, i, key, pos, resp)
+		//getNumbersForTable(groupInfo, archers, i, key, pos, sets, resp)
+		getNumbersForTable(groupInfo, archers, i, key, pos, sets, resp)
 		i++;
 	}
 	//console.log('resp='+JSON.stringify(resp));//---------------------------------------------checkOut-----------------------------------------------
