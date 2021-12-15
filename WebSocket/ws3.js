@@ -5,6 +5,7 @@ const fs = require("fs");
 const player = require('node-wav-player');
 function gudok(n){
 	let soundFile = 'gudok1.wav';
+	console.log("gudok+" + n);
 	switch(n){
 		case 2: soundFile = 'gudok2.wav'; break;
 		case 3: soundFile = 'gudok3.wav'; break;
@@ -17,29 +18,14 @@ function gudok(n){
 }
 const atn = require("./ArcherTabloNode");
 gudok(2);
-/*
-const os = require('os');
-let netIFs = os.networkInterfaces();
-console.log('netIFs :===========================================');
-console.log(netIFs);
-console.log('==============================================================');
 
-for(key in netIFs){
-	netIFs[key].forEach(function(item, index, array) {
-		console.log('netIFs :-----------------------');
-		console.log(item);
-		console.log('-------------------------------');
-	});
-	//break;
-}
-*/
 //----------------------- Запуск обычного HTTP Server ------------------------------------
 const exp = express();
 exp.get("/", function (request, response) {
     response.sendFile(__dirname + '/index.html');
-	gudok(3);
+	//gudok(3);
 });
-exp.listen(8080);// начинаем прослушивать подключения на 3000 порту
+exp.listen(8080);// начинаем прослушивать подключения на 8080 порту
 
 exp.get("/*", function (request, response) {
 	let arg = request.url;
@@ -63,6 +49,10 @@ atn.init(data);
 
 function updateData(){
 	atn.processing(data);
+	if(data.qBeep > 0){
+		gudok(data.qBeep);
+		data.qBeep = 0;
+	}
 	let jsonStringfyData = JSON.stringify(data);
 	if(jsonStringfyData != copyData){
 		copyData = jsonStringfyData;
